@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
-export async function loginWithEmail(prevState: any, formData: FormData) {
+export async function loginWithEmail(prevState: unknown, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const redirectTo = (formData.get('redirectTo') as string) || '/dashboard'
@@ -27,7 +27,7 @@ export async function loginWithEmail(prevState: any, formData: FormData) {
   redirect(redirectTo)
 }
 
-export async function signupWithEmail(prevState: any, formData: FormData) {
+export async function signupWithEmail(prevState: unknown, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const confirmPassword = formData.get('confirmPassword') as string

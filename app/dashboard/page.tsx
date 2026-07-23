@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { signOutAction } from '@/features/auth/actions'
 import { BecomeSellerButton } from '@/features/profiles/components/BecomeSellerButton'
@@ -94,7 +95,7 @@ export default async function DashboardPage() {
         {isSeller ? (
           <section
             id="seller-dashboard-nav"
-            className="rounded-2xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-950/30 space-y-3"
+            className="rounded-2xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-950/30 space-y-4"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white">
@@ -107,9 +108,24 @@ export default async function DashboardPage() {
                   Space Owner Dashboard
                 </h2>
                 <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                  You are listed as a seller. Listing management coming soon.
+                  Manage your listings and track incoming bookings.
                 </p>
               </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                id="manage-listings-link"
+                href="/dashboard/listings"
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+              >
+                Manage Listings
+              </Link>
+              <Link
+                href="/dashboard/listings/new"
+                className="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-white px-4 py-2 text-sm font-medium text-indigo-700 shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/30 transition-colors"
+              >
+                + New listing
+              </Link>
             </div>
           </section>
         ) : (
