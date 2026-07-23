@@ -12,6 +12,31 @@ export type ListingCategory = (typeof LISTING_CATEGORIES)[number]
 export const BOOKING_MODES = ['instant', 'request'] as const
 export const LISTING_STATUSES = ['draft', 'published', 'archived'] as const
 
+export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
+export const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+] as const
+
+export function validateImageFile(file: File): { valid: boolean; error?: string } {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type as any)) {
+    return {
+      valid: false,
+      error: 'File type is not supported. Please upload an image (JPG, PNG, WebP, GIF, or AVIF).',
+    }
+  }
+  if (file.size > MAX_IMAGE_SIZE_BYTES) {
+    return {
+      valid: false,
+      error: 'File size exceeds the 5MB limit.',
+    }
+  }
+  return { valid: true }
+}
+
 /**
  * Zod schema for the create/edit listing form.
  * price_cents is derived from a dollars-and-cents string input on the client
@@ -47,6 +72,11 @@ export const listingSchema = z.object({
   booking_mode: z.enum(BOOKING_MODES, {
     message: 'Please select a booking mode',
   }),
+
+  images: z
+    .array(z.string().url('Invalid image URL'))
+    .max(10, 'You can upload up to 10 images')
+    .default([]),
 })
 
 export type ListingFormValues = z.infer<typeof listingSchema>
@@ -60,3 +90,4 @@ export function dollarsToCents(value: string): number | null {
   if (isNaN(parsed) || parsed < 0) return null
   return Math.round(parsed * 100)
 }
+

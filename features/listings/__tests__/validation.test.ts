@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { listingSchema, dollarsToCents } from '../validation'
+import { listingSchema, dollarsToCents, validateImageFile } from '../validation'
 
 /** A fully valid listing payload for boundary testing. */
 const validPayload = {
@@ -120,6 +120,33 @@ describe('listingSchema', () => {
     const result = listingSchema.safeParse({ ...validPayload, description: maxDesc })
     expect(result.success).toBe(true)
   })
+
+  it('accepts valid image URLs', () => {
+    const images = ['https://example.com/photo1.jpg', 'https://example.com/photo2.png']
+    const result = listingSchema.safeParse({ ...validPayload, images })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.images).toEqual(images)
+    }
+  })
+
+  it('rejects invalid image URLs', () => {
+    const images = ['not-a-url']
+    const result = listingSchema.safeParse({ ...validPayload, images })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.images).toBeDefined()
+    }
+  })
+
+  it('rejects more than 10 images', () => {
+    const images = Array.from({ length: 11 }, (_, i) => `https://example.com/img${i}.jpg`)
+    const result = listingSchema.safeParse({ ...validPayload, images })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.flatten().fieldErrors.images).toBeDefined()
+    }
+  })
 })
 
 describe('dollarsToCents', () => {
@@ -152,3 +179,26 @@ describe('dollarsToCents', () => {
     expect(dollarsToCents('85.555')).toBe(8556)
   })
 })
+
+describe('validateImageFile', () => {
+  it('accepts valid image MIME types under 5MB', () => {
+    const validFile = new File(['dummy content'], 'photo.jpg', { type: 'image/jpeg' })
+    expect(validateImageFile(validFile)).toEqual({ valid: true })
+  })
+
+  it('rejects non-image MIME types', () => {
+    const pdfFile = new File(['dummy content'], 'doc.pdf', { type: 'application/pdf' })
+    const res = validateImageFile(pdfFile)
+    expect(res.valid).toBe(false)
+    expect(res.error).toContain('File type is not supported')
+  })
+
+  it('rejects files larger than 5MB', () => {
+    const largeBlob = new Uint8Array(5 * 1024 * 1024 + 1)
+    const largeFile = new File([largeBlob], 'big.png', { type: 'image/png' })
+    const res = validateImageFile(largeFile)
+    expect(res.valid).toBe(false)
+    expect(res.error).toContain('exceeds the 5MB limit')
+  })
+})
+

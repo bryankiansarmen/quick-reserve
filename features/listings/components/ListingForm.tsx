@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { createListingAction, updateListingAction, ListingActionState } from '../actions'
 import { LISTING_CATEGORIES, BOOKING_MODES, ListingFormValues } from '../validation'
+import { ImageUpload } from './ImageUpload'
 
 interface ListingFormProps {
   /** When present, the form operates in edit mode. */
@@ -172,6 +173,9 @@ export function ListingForm({ listingId, initialData }: ListingFormProps) {
         </div>
         {errors.price_cents && <FieldError messages={errors.price_cents} />}
       </div>
+
+      {/* Images */}
+      <ImageUpload initialImages={initialData?.images} />
 
       {/* Location */}
       <div>

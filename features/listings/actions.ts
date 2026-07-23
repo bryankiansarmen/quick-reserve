@@ -18,6 +18,7 @@ export type ListingActionState = {
 function parseListingForm(formData: FormData): ReturnType<typeof listingSchema.safeParse> {
   const rawPriceDollars = formData.get('price_dollars') as string
   const price_cents = rawPriceDollars !== null ? dollarsToCents(rawPriceDollars) : null
+  const rawImages = formData.getAll('images').filter((img): img is string => typeof img === 'string' && img.trim().length > 0)
 
   return listingSchema.safeParse({
     title: formData.get('title'),
@@ -26,6 +27,7 @@ function parseListingForm(formData: FormData): ReturnType<typeof listingSchema.s
     price_cents: price_cents ?? NaN,
     location: formData.get('location'),
     booking_mode: formData.get('booking_mode'),
+    images: rawImages,
   })
 }
 
