@@ -72,14 +72,19 @@ export function ImageUpload({ initialImages = [] }: ImageUploadProps) {
           .from('listing-images')
           .getPublicUrl(fileName)
 
-        if (publicUrlData?.publicUrl) {
-          uploadedUrls.push(publicUrlData.publicUrl)
+        if (!publicUrlData?.publicUrl) {
+          setError(`Failed to retrieve upload URL for ${file.name}. Please try again.`)
+          setUploading(false)
+          return
         }
+
+        uploadedUrls.push(publicUrlData.publicUrl)
       }
 
       setImages((prev) => [...prev, ...uploadedUrls])
-    } catch {
-      setError('An unexpected error occurred during file upload.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      setError(`File upload failed: ${message}`)
     } finally {
       setUploading(false)
     }

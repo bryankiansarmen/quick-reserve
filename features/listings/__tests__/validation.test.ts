@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { listingSchema, dollarsToCents, validateImageFile } from '../validation'
+import { listingSchema, dollarsToCents, validateImageFile, getPublishValidationErrors } from '../validation'
 
 /** A fully valid listing payload for boundary testing. */
 const validPayload = {
@@ -199,6 +199,28 @@ describe('validateImageFile', () => {
     const res = validateImageFile(largeFile)
     expect(res.valid).toBe(false)
     expect(res.error).toContain('exceeds the 5MB limit')
+  })
+})
+
+describe('getPublishValidationErrors', () => {
+  it('returns error if images count is below minimum', () => {
+    const errors = getPublishValidationErrors(0)
+    expect(errors).toContain('Add at least 1 image before publishing')
+  })
+
+  it('returns empty array if minimum images met', () => {
+    const errors = getPublishValidationErrors(1)
+    expect(errors).toHaveLength(0)
+  })
+
+  it('returns empty array for multiple images', () => {
+    const errors = getPublishValidationErrors(5)
+    expect(errors).toHaveLength(0)
+  })
+
+  it('returns empty array for maximum images', () => {
+    const errors = getPublishValidationErrors(10)
+    expect(errors).toHaveLength(0)
   })
 })
 

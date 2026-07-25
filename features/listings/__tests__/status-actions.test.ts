@@ -127,8 +127,8 @@ describe('updateListingStatusAction unit tests', () => {
   it('handles database update errors gracefully', async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'seller-abc' } } })
     mockSingle.mockResolvedValueOnce({
-      data: { seller_id: 'seller-abc', images: [], status: 'draft' },
-      error: 'null',
+      data: { seller_id: 'seller-abc', images: ['image-url.jpg'], status: 'draft' },
+      error: null,
     })
     mockUpdateResponse.value = { data: null, error: { message: 'Database constraint failed' } as unknown as { message: string } }
 

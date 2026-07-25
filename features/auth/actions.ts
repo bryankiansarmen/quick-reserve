@@ -4,10 +4,29 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
+/**
+ * Validates that a redirect path is safe (relative, no double slashes)
+ * Prevents open redirect vulnerabilities
+ */
+function isValidRedirectPath(path: string): boolean {
+  return typeof path === 'string' && path.startsWith('/') && !path.includes('//')
+}
+
+/**
+ * Gets the origin from request headers with fallback
+ * Provides a safe default when Origin header is missing
+ */
+async function getSafeOrigin(): Promise<string> {
+  const requestHeaders = await headers()
+  const origin = requestHeaders.get('origin')
+  return origin || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+}
+
 export async function loginWithEmail(prevState: unknown, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const redirectTo = (formData.get('redirectTo') as string) || '/dashboard'
+  const rawRedirectTo = formData.get('redirectTo') as string
+  const redirectTo = (rawRedirectTo && isValidRedirectPath(rawRedirectTo)) ? rawRedirectTo : '/dashboard'
 
   if (!email || !password) {
     return { error: 'Email and password are required.' }
@@ -44,7 +63,7 @@ export async function signupWithEmail(prevState: unknown, formData: FormData) {
     return { error: 'Password must be at least 6 characters long.' }
   }
 
-  const origin = (await headers()).get('origin')
+  const origin = await getSafeOrigin()
   const supabase = await createClient()
 
   const { data, error } = await supabase.auth.signUp({
@@ -67,7 +86,7 @@ export async function signupWithEmail(prevState: unknown, formData: FormData) {
 }
 
 export async function loginWithGoogle() {
-  const origin = (await headers()).get('origin')
+  const origin = await getSafeOrigin()
   const supabase = await createClient()
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -81,9 +100,11 @@ export async function loginWithGoogle() {
     return { error: error.message }
   }
 
-  if (data.url) {
-    redirect(data.url)
+  if (!data?.url) {
+    return { error: 'Failed to initiate OAuth flow. Please try again.' }
   }
+
+  redirect(data.url)
 }
 
 export async function signOutAction() {
