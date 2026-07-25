@@ -277,4 +277,122 @@ describe('Listings Table RLS Integration Tests', () => {
     expect(stillExists).not.toBeNull()
     expect(stillExists!.id).toBe(bListing!.id)
   })
+
+  it('anonymous user cannot select an archived listing', async () => {
+    const { client: sellerClient, user } = await signUpSeller('anon-archived')
+    createdUserIds.push(user.id)
+
+    // Seller creates a listing and then archives it
+    const { data: inserted, error: insertErr } = await sellerClient
+      .from('listings')
+      .insert(listingPayload(user.id, { status: 'archived' }))
+      .select()
+      .single()
+    expect(insertErr).toBeNull()
+
+    // Anonymous client tries to read the archived listing
+    const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    const { data, error } = await anonClient
+      .from('listings')
+      .select('*')
+      .eq('id', inserted!.id)
+      .maybeSingle()
+
+    // RLS should block the row — returns null, not an error
+    expect(error).toBeNull()
+    expect(data).toBeNull()
+  })
+
+  it('seller can select their own archived listing', async () => {
+    const { client: sellerClient, user } = await signUpSeller('own-archived-read')
+    createdUserIds.push(user.id)
+
+    const { data: inserted, error: insertErr } = await sellerClient
+      .from('listings')
+      .insert(listingPayload(user.id, { status: 'archived' }))
+      .select()
+      .single()
+    expect(insertErr).toBeNull()
+
+    // Seller can read their own archived listing
+    const { data, error } = await sellerClient
+      .from('listings')
+      .select('*')
+      .eq('id', inserted!.id)
+      .single()
+
+    expect(error).toBeNull()
+    expect(data!.id).toBe(inserted!.id)
+    expect(data!.status).toBe('archived')
+  })
+
+  it("seller A cannot select seller B's archived listing", async () => {
+    const { client: sellerAClient, user: userA } = await signUpSeller('a-cant-read-b-archived')
+    const { client: sellerBClient, user: userB } = await signUpSeller('b-has-archived')
+    createdUserIds.push(userA.id, userB.id)
+
+    // Seller B creates an archived listing
+    const { data: bListing, error: bInsertErr } = await sellerBClient
+      .from('listings')
+      .insert(listingPayload(userB.id, { status: 'archived' }))
+      .select()
+      .single()
+    expect(bInsertErr).toBeNull()
+
+    // Seller A tries to read it
+    const { data, error } = await sellerAClient
+      .from('listings')
+      .select('*')
+      .eq('id', bListing!.id)
+      .maybeSingle()
+
+    expect(error).toBeNull()
+    expect(data).toBeNull() // Blocked by RLS
+  })
+
+  it('seller can update a listing status from published to archived', async () => {
+    const { client: sellerClient, user } = await signUpSeller('status-update-archive')
+    createdUserIds.push(user.id)
+
+    // Create and publish a listing
+    const { data: inserted } = await sellerClient
+      .from('listings')
+      .insert(listingPayload(user.id, { status: 'published' }))
+      .select()
+      .single()
+
+    // Update status to archived
+    const { data: updated, error } = await sellerClient
+      .from('listings')
+      .update({ status: 'archived' })
+      .eq('id', inserted!.id)
+      .select()
+      .single()
+
+    expect(error).toBeNull()
+    expect(updated!.status).toBe('archived')
+  })
+
+  it('seller can update a listing status from archived back to published', async () => {
+    const { client: sellerClient, user } = await signUpSeller('status-update-republish')
+    createdUserIds.push(user.id)
+
+    // Create an archived listing
+    const { data: inserted } = await sellerClient
+      .from('listings')
+      .insert(listingPayload(user.id, { status: 'archived' }))
+      .select()
+      .single()
+
+    // Update status back to published
+    const { data: updated, error } = await sellerClient
+      .from('listings')
+      .update({ status: 'published' })
+      .eq('id', inserted!.id)
+      .select()
+      .single()
+
+    expect(error).toBeNull()
+    expect(updated!.status).toBe('published')
+  })
 })

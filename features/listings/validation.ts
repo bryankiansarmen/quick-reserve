@@ -22,7 +22,7 @@ export const ALLOWED_IMAGE_TYPES = [
 ] as const
 
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type as any)) {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
     return {
       valid: false,
       error: 'File type is not supported. Please upload an image (JPG, PNG, WebP, GIF, or AVIF).',
@@ -89,5 +89,21 @@ export function dollarsToCents(value: string): number | null {
   const parsed = parseFloat(value)
   if (isNaN(parsed) || parsed < 0) return null
   return Math.round(parsed * 100)
+}
+
+export const PUBLISH_REQUIREMENTS = {
+  MIN_IMAGES: 1,
+} as const
+
+/**
+ * Validates whether a listing can be published based on completeness rules.
+ * Currently checks that the listing has at least 1 image.
+ */
+export function getPublishValidationErrors(imagesCount: number): string[] {
+  const errors: string[] = []
+  if (imagesCount < PUBLISH_REQUIREMENTS.MIN_IMAGES) {
+    errors.push('Add at least 1 image before publishing')
+  }
+  return errors
 }
 

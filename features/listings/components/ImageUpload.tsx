@@ -2,7 +2,7 @@
 
 import { useState, ChangeEvent, DragEvent } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { validateImageFile, MAX_IMAGE_SIZE_BYTES } from '../validation'
+import { validateImageFile } from '../validation'
 
 interface ImageUploadProps {
   initialImages?: string[]
@@ -78,7 +78,7 @@ export function ImageUpload({ initialImages = [] }: ImageUploadProps) {
       }
 
       setImages((prev) => [...prev, ...uploadedUrls])
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred during file upload.')
     } finally {
       setUploading(false)

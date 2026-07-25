@@ -59,12 +59,11 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
 
     // Create User B
     const clientB = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    const { data: userBData } = await clientB.auth.signUp({
+    await clientB.auth.signUp({
       email: userBEmail,
       password,
       options: { data: { full_name: 'User B' } },
     })
-    const userBId = userBData.user!.id
 
     // Any client can read User A's profile
     const { data: profileA, error: readError } = await anonClient

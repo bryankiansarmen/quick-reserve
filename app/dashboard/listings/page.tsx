@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import ListingStatusToggle from '@/features/listings/components/ListingStatusToggle'
 
 export const metadata = {
   title: 'My Listings | Quick Reserve',
@@ -47,7 +48,7 @@ export default async function SellerListingsPage() {
 
   const { data: listings, error } = await supabase
     .from('listings')
-    .select('id, title, category, price_cents, status, location, created_at')
+    .select('id, title, category, price_cents, status, location, created_at, images')
     .eq('seller_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -161,12 +162,19 @@ export default async function SellerListingsPage() {
                       </span>
                     </p>
                   </div>
-                  <Link
-                    href={`/dashboard/listings/${listing.id}/edit`}
-                    className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    Edit
-                  </Link>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <ListingStatusToggle
+                      listingId={listing.id}
+                      currentStatus={listing.status as 'draft' | 'published' | 'archived'}
+                      hasImages={listing.images && listing.images.length > 0}
+                    />
+                    <Link
+                      href={`/dashboard/listings/${listing.id}/edit`}
+                      className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      Edit
+                    </Link>
+                  </div>
                 </div>
               </li>
             ))}

@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { listingSchema, dollarsToCents } from './validation'
+import { listingSchema, dollarsToCents, getPublishValidationErrors } from './validation'
 
 export type ListingActionState = {
   errors?: Partial<Record<string, string[]>>
@@ -115,4 +115,68 @@ export async function updateListingAction(
   revalidatePath('/dashboard/listings')
   revalidatePath(`/dashboard/listings/${listingId}/edit`)
   redirect('/dashboard/listings')
+}
+
+/**
+ * Updates status of a listing (e.g. draft -> published -> archived).
+ * Runs completeness validation when transitioning to published.
+ */
+export async function updateListingStatusAction(
+  listingId: string,
+  newStatus: 'draft' | 'published' | 'archived'
+): Promise<ListingActionState> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return { generalError: 'You must be signed in to update listing status.' }
+  }
+
+  // Fetch current listing details for ownership and completeness checks
+  const { data: listing, error: fetchError } = await supabase
+    .from('listings')
+    .select('seller_id, images, status')
+    .eq('id', listingId)
+    .single()
+
+  if (fetchError || !listing) {
+    return { generalError: 'Listing not found.' }
+  }
+
+  if (listing.seller_id !== user.id) {
+    return { generalError: "You don't have permission to update this listing." }
+  }
+
+  // Validate status transition requirements
+  if (newStatus === 'published') {
+    const imagesCount = listing.images?.length || 0
+    const validationErrors = getPublishValidationErrors(imagesCount)
+    if (validationErrors.length > 0) {
+      return { 
+        errors: { status: validationErrors },
+        generalError: validationErrors.join('. ')
+      }
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from('listings')
+    .update({ status: newStatus })
+    .eq('id', listingId)
+    // Extra safety: make sure ownership is verified in DB query too
+    .eq('seller_id', user.id)
+
+  if (updateError) {
+    return { generalError: updateError.message }
+  }
+
+  revalidatePath('/dashboard/listings')
+  revalidatePath(`/dashboard/listings/${listingId}/edit`)
+  revalidatePath('/dashboard')
+
+  return { success: true }
 }
