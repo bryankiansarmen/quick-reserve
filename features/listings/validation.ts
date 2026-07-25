@@ -93,17 +93,104 @@ export function dollarsToCents(value: string): number | null {
 
 export const PUBLISH_REQUIREMENTS = {
   MIN_IMAGES: 1,
+  MIN_SLOTS: 1,
 } as const
 
 /**
  * Validates whether a listing can be published based on completeness rules.
- * Currently checks that the listing has at least 1 image.
+ * Checks that the listing has at least 1 image and 1 availability slot.
  */
-export function getPublishValidationErrors(imagesCount: number): string[] {
+export function getPublishValidationErrors(imagesCount: number, slotsCount: number): string[] {
   const errors: string[] = []
   if (imagesCount < PUBLISH_REQUIREMENTS.MIN_IMAGES) {
     errors.push('Add at least 1 image before publishing')
   }
+  if (slotsCount < PUBLISH_REQUIREMENTS.MIN_SLOTS) {
+    errors.push('Add at least 1 availability slot before publishing')
+  }
   return errors
+}
+
+export const MIN_SLOT_DURATION_MINUTES = 15
+export const MAX_SLOT_DURATION_HOURS = 24
+
+/**
+ * Zod schema for slot validation.
+ * Ensures:
+ * - Valid ISO 8601 datetime strings
+ * - End time is after start time
+ * - Start time is in the future
+ * - Duration is between 15 minutes and 24 hours
+ */
+export const slotSchema = z.object({
+  start_time: z.string()
+    .datetime('Invalid start time format'),
+  end_time: z.string()
+    .datetime('Invalid end time format'),
+})
+.refine(
+  (data) => new Date(data.end_time) > new Date(data.start_time),
+  { message: 'End time must be after start time', path: ['end_time'] }
+)
+.refine(
+  (data) => new Date(data.start_time) > new Date(),
+  { message: 'Start time must be in the future', path: ['start_time'] }
+)
+.refine(
+  (data) => {
+    const duration = new Date(data.end_time).getTime() - new Date(data.start_time).getTime()
+    const minutes = duration / (1000 * 60)
+    return minutes >= MIN_SLOT_DURATION_MINUTES
+  },
+  { message: `Slot must be at least ${MIN_SLOT_DURATION_MINUTES} minutes`, path: ['end_time'] }
+)
+.refine(
+  (data) => {
+    const duration = new Date(data.end_time).getTime() - new Date(data.start_time).getTime()
+    const hours = duration / (1000 * 60 * 60)
+    return hours <= MAX_SLOT_DURATION_HOURS
+  },
+  { message: `Slot cannot exceed ${MAX_SLOT_DURATION_HOURS} hours`, path: ['end_time'] }
+)
+
+/**
+ * Formats slot duration as human-readable string.
+ * Examples: "2h 30m", "1h", "45m"
+ */
+export function formatDuration(startTime: string, endTime: string): string {
+  const ms = new Date(endTime).getTime() - new Date(startTime).getTime()
+  const hours = Math.floor(ms / (1000 * 60 * 60))
+  const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
+  
+  if (hours === 0) return `${minutes}m`
+  if (minutes === 0) return `${hours}h`
+  return `${hours}h ${minutes}m`
+}
+
+/**
+ * Formats time range for display using browser locale.
+ * Examples:
+ *   US: "Mon, Jan 15, 2026 • 2:00 PM – 4:00 PM"
+ *   UK: "Mon, 15 Jan 2026 • 14:00 – 16:00"
+ * Uses undefined locale to respect browser's locale preference.
+ */
+export function formatTimeRange(startTime: string, endTime: string): string {
+  const start = new Date(startTime)
+  const end = new Date(endTime)
+  
+  const dateFormatter = new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  
+  const timeFormatter = new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true, // Adapts to locale (becomes 24h where appropriate)
+  })
+  
+  return `${dateFormatter.format(start)} • ${timeFormatter.format(start)} – ${timeFormatter.format(end)}`
 }
 

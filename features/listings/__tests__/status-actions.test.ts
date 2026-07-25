@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({
 }))
 
 // Define mocked functions using vi.hoisted so they can be referenced inside the hoisted vi.mock
-const { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse } = vi.hoisted(() => {
+const { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse, mockSlotCount } = vi.hoisted(() => {
   const mockGetUser = vi.fn()
   const _mockSelect = vi.fn()
   const _mockUpdate = vi.fn()
@@ -23,12 +23,27 @@ const { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse } = vi.hoisted
   const mockUpdateResponse = {
     value: { data: null, error: null }
   }
+  
+  // Default slot count (1 = has slots, 0 = no slots)
+  const mockSlotCount = {
+    value: 1
+  }
 
   const mockSupabase = {
     auth: {
       getUser: mockGetUser,
     },
-    from: vi.fn().mockImplementation(() => {
+    from: vi.fn().mockImplementation((table) => {
+      if (table === 'availability_slots') {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          then: vi.fn().mockImplementation((onFulfilled) => {
+            return Promise.resolve({ count: mockSlotCount.value }).then(onFulfilled)
+          }),
+        }
+      }
+      // For listings table
       const queryBuilder = {
         select: _mockSelect.mockReturnThis(),
         update: _mockUpdate.mockReturnThis(),
@@ -43,7 +58,7 @@ const { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse } = vi.hoisted
     }),
   }
 
-  return { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse }
+  return { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse, mockSlotCount }
 })
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -54,6 +69,7 @@ describe('updateListingStatusAction unit tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUpdateResponse.value = { data: null, error: null }
+    mockSlotCount.value = 1 // Default: has slots
   })
 
   it('fails if user is not signed in', async () => {
@@ -95,6 +111,20 @@ describe('updateListingStatusAction unit tests', () => {
     const result = await updateListingStatusAction('listing-123', 'published')
 
     expect(result.errors?.status).toContain('Add at least 1 image before publishing')
+    expect(result.success).toBeUndefined()
+  })
+
+  it('fails to publish if listing has no slots', async () => {
+    mockSlotCount.value = 0 // No slots
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: 'seller-abc' } } })
+    mockSingle.mockResolvedValueOnce({
+      data: { seller_id: 'seller-abc', images: ['image-url.jpg'], status: 'draft' },
+      error: null,
+    })
+
+    const result = await updateListingStatusAction('listing-123', 'published')
+
+    expect(result.errors?.status).toContain('Add at least 1 availability slot before publishing')
     expect(result.success).toBeUndefined()
   })
 

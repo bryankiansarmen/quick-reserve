@@ -153,8 +153,14 @@ export async function updateListingStatusAction(
 
   // Validate status transition requirements
   if (newStatus === 'published') {
+    // Fetch slot count for validation
+    const { count: slotsCount } = await supabase
+      .from('availability_slots')
+      .select('*', { count: 'exact', head: true })
+      .eq('listing_id', listingId)
+    
     const imagesCount = listing.images?.length || 0
-    const validationErrors = getPublishValidationErrors(imagesCount)
+    const validationErrors = getPublishValidationErrors(imagesCount, slotsCount || 0)
     if (validationErrors.length > 0) {
       return { 
         errors: { status: validationErrors },

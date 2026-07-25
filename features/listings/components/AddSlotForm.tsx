@@ -1,0 +1,190 @@
+'use client'
+
+import { useActionState, useState } from 'react'
+import { addSlotAction } from '../slot-actions'
+import { formatTimeRange, formatDuration } from '../validation'
+import type { SlotActionState } from '../types'
+
+interface AddSlotFormProps {
+  listingId: string
+}
+
+function FieldError({ messages }: { messages?: string[] }) {
+  if (!messages?.length) return null
+  return (
+    <p className="mt-1 text-xs text-red-600 dark:text-red-400" aria-live="polite">
+      {messages[0]}
+    </p>
+  )
+}
+
+const inputBase =
+  'mt-1 block w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 ' +
+  'placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 ' +
+  'dark:bg-slate-800 dark:text-white dark:placeholder-slate-500'
+
+const inputNormal =
+  inputBase +
+  ' border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700'
+
+const inputError =
+  inputBase +
+  ' border-red-500 focus:border-red-500 focus:ring-red-500 dark:border-red-500'
+
+function inputClass(hasError: boolean) {
+  return hasError ? inputError : inputNormal
+}
+
+/**
+ * Form for adding availability slots.
+ * Auto-sets end time to start + 1 hour for UX convenience.
+ * Shows prominent overlap error with conflicting slot details (CRITICAL for Task DoD).
+ */
+export function AddSlotForm({ listingId }: AddSlotFormProps) {
+  const [state, formAction, isPending] = useActionState<SlotActionState | null, FormData>(
+    addSlotAction,
+    null
+  )
+  
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
+  
+  // Auto-set end time to start + 1 hour when start changes
+  const handleStartTimeChange = (value: string) => {
+    setStartTime(value)
+    if (value) {
+      const start = new Date(value)
+      const end = new Date(start.getTime() + 60 * 60 * 1000) // +1 hour
+      const endISO = end.toISOString().slice(0, 16)
+      setEndTime(endISO)
+    }
+  }
+  
+  const errors = state?.errors ?? {}
+  
+  // Calculate minimum datetime (current time in local timezone)
+  const now = new Date()
+  const minDateTime = now.toISOString().slice(0, 16)
+  
+  // Show duration preview
+  const durationPreview = startTime && endTime
+    ? formatDuration(startTime, endTime)
+    : null
+  
+  return (
+    <form action={formAction} className="space-y-6" noValidate>
+      <input type="hidden" name="listing_id" value={listingId} />
+      
+      {/* OVERLAP ERROR - Prominently displayed per Task DoD */}
+      {errors.overlap && (
+        <div className="rounded-lg border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/20 px-4 py-3">
+          <div className="flex gap-3">
+            <svg 
+              className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <p className="font-medium text-amber-900 dark:text-amber-200">
+                Slot Overlap Detected
+              </p>
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                {errors.overlap[0]}
+              </p>
+              {/* Show conflicting slot details - CRITICAL for Task DoD */}
+              {state?.conflictingSlot && (
+                <p className="mt-2 text-sm text-amber-700 dark:text-amber-300 font-medium">
+                  Conflicts with: {formatTimeRange(
+                    state.conflictingSlot.start_time,
+                    state.conflictingSlot.end_time
+                  )}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* General errors */}
+      {errors.general && (
+        <div className="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-700 dark:text-red-300" role="alert">
+          {errors.general[0]}
+        </div>
+      )}
+      
+      {/* Start time */}
+      <div>
+        <label htmlFor="start_time" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          Start time <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="start_time"
+          name="start_time"
+          type="datetime-local"
+          required
+          min={minDateTime}
+          value={startTime}
+          onChange={(e) => handleStartTimeChange(e.target.value)}
+          className={inputClass(!!errors.start_time)}
+          aria-describedby={errors.start_time ? 'start-time-error' : undefined}
+        />
+        {errors.start_time && <FieldError messages={errors.start_time} />}
+      </div>
+      
+      {/* End time */}
+      <div>
+        <label htmlFor="end_time" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          End time <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="end_time"
+          name="end_time"
+          type="datetime-local"
+          required
+          min={startTime || minDateTime}
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className={inputClass(!!errors.end_time)}
+          aria-describedby={errors.end_time ? 'end-time-error' : undefined}
+        />
+        {errors.end_time && <FieldError messages={errors.end_time} />}
+        
+        {/* Duration preview */}
+        {durationPreview && (
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Duration: {durationPreview}
+          </p>
+        )}
+      </div>
+      
+      {/* Submit button */}
+      <button
+        type="submit"
+        disabled={isPending}
+        className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {isPending && (
+          <svg
+            className="h-4 w-4 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+        )}
+        {isPending ? 'Adding slot...' : 'Add Slot'}
+      </button>
+    </form>
+  )
+}
