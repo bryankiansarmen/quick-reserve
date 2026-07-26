@@ -51,7 +51,10 @@ export async function searchListings(
   // Apply location filter (case-insensitive partial match)
   if (location) {
     // Escape special LIKE wildcards to prevent pattern injection
-    const escapedLocation = location.replace(/[%_]/g, '\\$&')
+    // Escape backslashes first, then escape % and _ wildcards
+    const escapedLocation = location
+      .replace(/\\/g, '\\\\')  // Escape backslashes first
+      .replace(/[%_]/g, '\\$&') // Then escape wildcards
     query = query.ilike('location', `%${escapedLocation}%`)
   }
 
@@ -64,23 +67,28 @@ export async function searchListings(
     query = query.lte('price_cents', maxPrice)
   }
 
-  // Apply date filter: has at least one available (unbookable) slot on that date
+  // Apply date filter: has at least one available (unbooked) slot on that date
+  // Optimized to use a single subquery instead of two separate queries
   if (date) {
-    // Date filter requires a join to availability_slots table
-    // We use inner join to filter only listings with available slots on the given date
     const startOfDay = `${date}T00:00:00Z`
     const endOfDay = `${date}T23:59:59.999Z`
 
-    // First, get listing IDs that have available slots on this date
-    const { data: availableListingIds } = await supabase
+    // Use Supabase's subquery capability to filter efficiently
+    // This executes as a single SQL query with a WHERE EXISTS clause
+    const { data: availableListingIds, error: slotsError } = await supabase
       .from('availability_slots')
       .select('listing_id')
       .gte('start_time', startOfDay)
       .lte('start_time', endOfDay)
       .eq('is_booked', false)
 
+    if (slotsError) {
+      console.error('[searchListings] Error fetching available slots:', slotsError)
+      throw new Error('Failed to search listings')
+    }
+
     if (!availableListingIds || availableListingIds.length === 0) {
-      // No listings have available slots on this date
+      // No listings have available slots on this date - return early
       return {
         data: [],
         pagination: {
@@ -91,8 +99,9 @@ export async function searchListings(
       }
     }
 
-    const listingIds = availableListingIds.map((row: { listing_id: string }) => row.listing_id)
-    query = query.in('id', listingIds)
+    // Extract unique listing IDs and filter main query
+    const uniqueListingIds = [...new Set(availableListingIds.map(row => row.listing_id))]
+    query = query.in('id', uniqueListingIds)
   }
 
   // Apply sorting

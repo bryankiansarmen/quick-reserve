@@ -206,6 +206,16 @@ export const searchQuerySchema = z.object({
   maxPrice: z.coerce.number().int('Price must be an integer').nonnegative('Price cannot be negative').optional(),
   date: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+    .refine(
+      (dateStr) => {
+        if (!dateStr) return true
+        const inputDate = new Date(dateStr + 'T00:00:00')
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        return inputDate >= today
+      },
+      { message: 'Date cannot be in the past' }
+    )
     .optional(),
   page: z.coerce.number().int('Page must be an integer').positive('Page must be at least 1').default(1),
   pageSize: z.coerce.number().int('Page size must be an integer').positive('Page size must be at least 1').max(50, 'Page size cannot exceed 50').default(20),

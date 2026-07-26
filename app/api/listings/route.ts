@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { searchListings } from '@/features/listings/queries'
 import { searchQuerySchema } from '@/features/listings/validation'
+import { createRateLimiter } from '@/lib/utils/rate-limit'
+
+// Rate limiter: 100 requests per minute per IP
+const rateLimiter = createRateLimiter({
+  requests: 100,
+  window: 60000, // 60 seconds
+})
 
 /**
  * GET /api/listings
@@ -41,6 +48,28 @@ import { searchQuerySchema } from '@/features/listings/validation'
  */
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting check
+    const rateLimitResult = await rateLimiter.check(request)
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: {
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: 'Too many requests. Please try again later.',
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+            'Retry-After': Math.ceil((rateLimitResult.reset * 1000 - Date.now()) / 1000).toString(),
+          },
+        }
+      )
+    }
+
     // Extract query parameters from URL
     const searchParams = request.nextUrl.searchParams
 
@@ -89,11 +118,8 @@ export async function GET(request: NextRequest) {
 
     // Handle unexpected errors
     console.error('[GET /api/listings] Unexpected error:', {
-      error: error instanceof Error ? error.message : String(error),
-      // Only expose stack traces in development
-      ...(process.env.NODE_ENV === 'development' && {
-        stack: error instanceof Error ? error.stack : undefined,
-      }),
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString(),
     })
 
     return NextResponse.json(
