@@ -24,7 +24,7 @@ interface ListingCardProps {
  * - Listing detail page
  */
 export function ListingCard({ listing }: ListingCardProps) {
-  const displayImage = listing.images[0] || '/placeholder-listing.jpg'
+  const displayImage = listing.images[0] || '/placeholder-listing.svg'
 
   return (
     <Link
