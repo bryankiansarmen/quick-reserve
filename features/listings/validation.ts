@@ -194,3 +194,36 @@ export function formatTimeRange(startTime: string, endTime: string): string {
   return `${dateFormatter.format(start)} • ${timeFormatter.format(start)} – ${timeFormatter.format(end)}`
 }
 
+/**
+ * Zod schema for GET /api/listings search query parameters.
+ * Validates filters, sorting, and pagination.
+ * All parameters are optional with sensible defaults.
+ */
+export const searchQuerySchema = z.object({
+  category: z.enum(LISTING_CATEGORIES).optional(),
+  location: z.string().min(1, 'Location must not be empty').optional(),
+  minPrice: z.coerce.number().int('Price must be an integer').nonnegative('Price cannot be negative').optional(),
+  maxPrice: z.coerce.number().int('Price must be an integer').nonnegative('Price cannot be negative').optional(),
+  date: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+    .optional(),
+  page: z.coerce.number().int('Page must be an integer').positive('Page must be at least 1').default(1),
+  pageSize: z.coerce.number().int('Page size must be an integer').positive('Page size must be at least 1').max(50, 'Page size cannot exceed 50').default(20),
+  sort: z.enum(['price_asc', 'price_desc', 'rating_desc', 'newest']).default('newest'),
+})
+.refine(
+  (data) => {
+    // If both minPrice and maxPrice are provided, minPrice must be <= maxPrice
+    if (data.minPrice !== undefined && data.maxPrice !== undefined) {
+      return data.minPrice <= data.maxPrice
+    }
+    return true
+  },
+  {
+    message: 'minPrice must be less than or equal to maxPrice',
+    path: ['maxPrice'],
+  }
+)
+
+export type SearchQueryParams = z.infer<typeof searchQuerySchema>
+
