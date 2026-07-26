@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { slotSchema } from './validation'
@@ -44,9 +43,32 @@ export async function addSlotAction(
   }
   
   // Validate slot times with Zod schema
+  // Convert datetime-local format (YYYY-MM-DDTHH:mm) to ISO 8601 with UTC timezone
+  const startTimeInput = formData.get('start_time') as string
+  const endTimeInput = formData.get('end_time') as string
+  
+  // Helper to convert datetime-local to ISO 8601 UTC
+  // datetime-local gives us local time in format "2026-08-01T14:30"
+  // We interpret it as user's local time and convert to ISO string
+  const normalizeDateTime = (dt: string): string => {
+    if (!dt) return dt
+    try {
+      // Create a Date object from the datetime-local string
+      const dateObj = new Date(dt)
+      // Convert to ISO string
+      return dateObj.toISOString()
+    } catch {
+      // If conversion fails, append :00Z as fallback
+      if (!dt.includes(':00Z') && !dt.includes('+')) {
+        return `${dt}:00Z`
+      }
+      return dt
+    }
+  }
+  
   const result = slotSchema.safeParse({
-    start_time: formData.get('start_time'),
-    end_time: formData.get('end_time'),
+    start_time: normalizeDateTime(startTimeInput),
+    end_time: normalizeDateTime(endTimeInput),
   })
   
   if (!result.success) {
@@ -87,10 +109,11 @@ export async function addSlotAction(
     return { errors: { general: [insertError.message] } }
   }
   
-  // Success - revalidate and redirect to listings index
+  // Success - revalidate but stay on the slots page
   revalidatePath('/dashboard/listings')
   revalidatePath(`/dashboard/listings/${listingId}/slots`)
-  redirect('/dashboard/listings')
+  
+  return { success: true }
 }
 
 /**

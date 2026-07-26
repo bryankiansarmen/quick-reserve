@@ -48,7 +48,19 @@ export default async function SellerListingsPage() {
 
   const { data: listings, error } = await supabase
     .from('listings')
-    .select('id, title, category, price_cents, status, location, created_at, images')
+    .select(
+      `
+      id,
+      title,
+      category,
+      price_cents,
+      status,
+      location,
+      created_at,
+      images,
+      slot_count:availability_slots(count)
+      `
+    )
     .eq('seller_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -173,6 +185,19 @@ export default async function SellerListingsPage() {
                       className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
                     >
                       Edit
+                    </Link>
+                    <Link
+                      href={`/dashboard/listings/${listing.id}/slots`}
+                      className="shrink-0 flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      Availability
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        ((listing.slot_count as unknown as { count: number }[])?.[0]?.count ?? 0) === 0
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                      }`}>
+                        {((listing.slot_count as unknown as { count: number }[])?.[0]?.count ?? 0)}
+                      </span>
                     </Link>
                   </div>
                 </div>

@@ -39,6 +39,7 @@ function inputClass(hasError: boolean) {
  * Form for adding availability slots.
  * Auto-sets end time to start + 1 hour for UX convenience.
  * Shows prominent overlap error with conflicting slot details (CRITICAL for Task DoD).
+ * On success, clears form and shows success message (stays on page).
  */
 export function AddSlotForm({ listingId }: AddSlotFormProps) {
   const [state, formAction, isPending] = useActionState<SlotActionState | null, FormData>(
@@ -48,14 +49,46 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
   
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [prevSuccessState, setPrevSuccessState] = useState(false)
+  
+  // Track when success state changes
+  if (state?.success && !prevSuccessState) {
+    setPrevSuccessState(true)
+    setShowSuccess(true)
+    setStartTime('')
+    setEndTime('')
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+      setShowSuccess(false)
+    }, 3000)
+  } else if (!state?.success && prevSuccessState) {
+    // Reset tracking when state is no longer success
+    setPrevSuccessState(false)
+  }
   
   // Auto-set end time to start + 1 hour when start changes
   const handleStartTimeChange = (value: string) => {
     setStartTime(value)
     if (value) {
-      const start = new Date(value)
+      // datetime-local values are in local time, not UTC
+      // Parse as local time, add 1 hour, then format back to datetime-local format
+      const [datePart, timePart] = value.split('T')
+      const [hours, minutes] = timePart.split(':')
+      
+      const start = new Date(datePart)
+      start.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
+      
       const end = new Date(start.getTime() + 60 * 60 * 1000) // +1 hour
-      const endISO = end.toISOString().slice(0, 16)
+      
+      // Format end time back to datetime-local format
+      const year = end.getFullYear()
+      const month = String(end.getMonth() + 1).padStart(2, '0')
+      const date = String(end.getDate()).padStart(2, '0')
+      const endHours = String(end.getHours()).padStart(2, '0')
+      const endMinutes = String(end.getMinutes()).padStart(2, '0')
+      
+      const endISO = `${year}-${month}-${date}T${endHours}:${endMinutes}`
       setEndTime(endISO)
     }
   }
@@ -74,6 +107,26 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
   return (
     <form action={formAction} className="space-y-6" noValidate>
       <input type="hidden" name="listing_id" value={listingId} />
+      
+      {/* SUCCESS MESSAGE */}
+      {showSuccess && (
+        <div className="rounded-lg border-2 border-green-500 bg-green-50 dark:bg-green-950/20 px-4 py-3 animate-in fade-in duration-300">
+          <div className="flex gap-3">
+            <svg 
+              className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <p className="text-sm font-medium text-green-900 dark:text-green-200">
+              Slot added successfully!
+            </p>
+          </div>
+        </div>
+      )}
       
       {/* OVERLAP ERROR - Prominently displayed per Task DoD */}
       {errors.overlap && (
