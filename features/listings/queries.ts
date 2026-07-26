@@ -3,6 +3,7 @@ import type {
   ListingSearchParams,
   ListingSearchResult,
   PaginatedListingsResponse,
+  ListingDetail,
 } from './types'
 
 /**
@@ -169,4 +170,159 @@ export async function searchListings(
       total: count || 0,
     },
   }
+}
+
+/**
+ * Fetch listing detail with seller info and future availability slots.
+ *
+ * Access control:
+ * - Published listings: visible to anyone
+ * - Draft/archived listings: visible only to the owner
+ *
+ * Returns null if:
+ * - Listing not found
+ * - Non-owner tries to view unpublished listing
+ *
+ * Slots are filtered to next 30 days, future-only (start_time > now()).
+ */
+export async function getListingDetail(
+  listingId: string,
+  userId?: string,
+): Promise<ListingDetail | null> {
+  const supabase = await createClient()
+
+  // Fetch listing with seller profile - use ! to flatten the joined table
+  const { data: listing, error: listingError } = await supabase
+    .from('listings')
+    .select(
+      `
+      id, title, description, category, price_cents, location, lat, lng,
+      images, booking_mode, status, created_at,
+      seller_id,
+      profiles!seller_id(id, full_name, avatar_url, bio)
+    `,
+    )
+    .eq('id', listingId)
+    .single()
+
+  if (listingError || !listing) {
+    // RLS policy denials (PGRST116 = not found) are expected for access control
+    // Only log actual errors (unexpected codes)
+    if (listingError && listingError.code !== 'PGRST116') {
+      console.error('[getListingDetail] Unexpected error fetching listing:', {
+        code: listingError.code,
+        message: listingError.message,
+      })
+    } else if (process.env.NODE_ENV === 'development' && listingError?.code === 'PGRST116') {
+      // Debug logging only in development for access denials
+      console.debug('[getListingDetail] Listing not found or access denied:', listingId)
+    }
+    return null
+  }
+
+  // Extract the seller profile (it's in the profiles field as a single object)
+  const sellerData = Array.isArray(listing.profiles)
+    ? listing.profiles[0]
+    : listing.profiles
+
+  if (!sellerData || !sellerData.id) {
+    console.error('[getListingDetail] Invalid seller data structure for listing:', listingId, { sellerData })
+    return null
+  }
+
+  // Access control: non-owners cannot view unpublished listings
+  if (listing.status !== 'published' && sellerData.id !== userId) {
+    return null
+  }
+
+  // Fetch future availability slots (next 30 days)
+  const now = new Date()
+  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+
+  const { data: slots, error: slotsError } = await supabase
+    .from('availability_slots')
+    .select('id, listing_id, start_time, end_time, is_booked, created_at, updated_at')
+    .eq('listing_id', listingId)
+    .gte('start_time', now.toISOString()) // future only
+    .lte('start_time', thirtyDaysFromNow.toISOString()) // within 30 days
+    .order('start_time', { ascending: true })
+
+  if (slotsError) {
+    // Log only unexpected errors, not benign failures
+    if (slotsError.code && !['PGRST116', 'PGRST119'].includes(slotsError.code)) {
+      console.error('[getListingDetail] Error fetching slots:', {
+        code: slotsError.code,
+        message: slotsError.message,
+      })
+    } else if (process.env.NODE_ENV === 'development') {
+      console.debug('[getListingDetail] Slots query returned:', { code: slotsError.code })
+    }
+    // Return listing without slots on error (graceful degradation)
+  }
+
+  return {
+    id: listing.id,
+    title: listing.title,
+    description: listing.description,
+    category: listing.category,
+    price_cents: listing.price_cents,
+    location: listing.location,
+    lat: listing.lat,
+    lng: listing.lng,
+    images: listing.images || [],
+    booking_mode: listing.booking_mode,
+    status: listing.status,
+    created_at: listing.created_at,
+    seller: {
+      id: sellerData.id,
+      full_name: sellerData.full_name,
+      avatar_url: sellerData.avatar_url,
+      bio: sellerData.bio,
+      avg_rating: 0,
+      review_count: 0,
+    },
+    available_slots: slots || [],
+    avg_rating: 0,
+    review_count: 0,
+  }
+}
+
+/**
+ * Fetch similar published listings by category (for "You may also like" section).
+ *
+ * Excludes the current listing ID, orders by newest, limits to specified count.
+ */
+export async function getSimilarListings(
+  category: string,
+  excludeId: string,
+  limit = 4,
+): Promise<ListingSearchResult[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('listings')
+    .select('id, title, price_cents, location, images, created_at')
+    .eq('status', 'published')
+    .eq('category', category)
+    .neq('id', excludeId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('[getSimilarListings] Error fetching similar listings:', {
+      code: error.code,
+      message: error.message,
+    })
+    return []
+  }
+
+  return (data || []).map(row => ({
+    id: row.id,
+    title: row.title,
+    price_cents: row.price_cents,
+    location: row.location,
+    images: row.images || [],
+    avg_rating: 0,
+    review_count: 0,
+  }))
 }

@@ -60,3 +60,31 @@ export interface PaginatedListingsResponse {
     total: number
   }
 }
+
+// Detail page types
+
+export interface ListingDetail {
+  id: string
+  title: string
+  description: string | null
+  category: string
+  price_cents: number
+  location: string
+  lat: number | null
+  lng: number | null
+  images: string[]
+  booking_mode: 'instant' | 'request'
+  status: 'draft' | 'published' | 'archived'
+  created_at: string
+  seller: {
+    id: string
+    full_name: string
+    avatar_url: string | null
+    bio: string | null
+    avg_rating: number
+    review_count: number
+  }
+  available_slots: AvailabilitySlot[]
+  avg_rating: number
+  review_count: number
+}
