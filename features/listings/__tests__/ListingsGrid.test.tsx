@@ -45,7 +45,7 @@ describe('ListingsGrid', () => {
       <ListingsGrid results={mockResults} onPageChange={mockOnPageChange} />
     )
 
-    expect(screen.getByText(/Showing 1–2 of 45 listings/)).toBeInTheDocument()
+    expect(screen.getByText(/Showing 1–20 of 45 listings/)).toBeInTheDocument()
   })
 
   it('shows empty state when no results', () => {

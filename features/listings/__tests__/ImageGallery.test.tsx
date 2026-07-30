@@ -80,11 +80,12 @@ describe('ImageGallery Component', () => {
     render(<ImageGallery images={mockImages} title="Test Studio" />)
 
     // Click second thumbnail first
-    await userEvent.setup().then(user => user.click(
+    const user = userEvent.setup()
+    await user.click(
       screen.getByRole('button', {
         name: 'View image 2',
       }),
-    ))
+    )
 
     expect(screen.getByText('2 / 4')).toBeInTheDocument()
 
@@ -329,13 +330,12 @@ describe('ImageGallery Component', () => {
     render(<ImageGallery images={mockImages} title="Test Studio" />)
 
     // Click last thumbnail
-    await userEvent.setup().then(async user => {
-      await user.click(
-        screen.getByRole('button', {
-          name: 'View image 4',
-        }),
-      )
-    })
+    const user = userEvent.setup()
+    await user.click(
+      screen.getByRole('button', {
+        name: 'View image 4',
+      }),
+    )
 
     expect(screen.getByText('4 / 4')).toBeInTheDocument()
 
@@ -374,13 +374,12 @@ describe('ImageGallery Component', () => {
     render(<ImageGallery images={mockImages} title="Test Studio" />)
 
     // Click last thumbnail
-    await userEvent.setup().then(async user => {
-      await user.click(
-        screen.getByRole('button', {
-          name: 'View image 4',
-        }),
-      )
-    })
+    const user = userEvent.setup()
+    await user.click(
+      screen.getByRole('button', {
+        name: 'View image 4',
+      }),
+    )
 
     const nextButton = screen.getByRole('button', {
       name: 'Next image',

@@ -149,12 +149,16 @@ export function SearchFilters({
       </div>
 
       {/* Price Range Filter */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+      <fieldset className="space-y-2">
+        <legend className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Price Range ($/hour)
-        </label>
+        </legend>
         <div className="grid grid-cols-2 gap-2">
+          <label htmlFor="minPrice" className="sr-only">
+            Minimum price
+          </label>
           <input
+            id="minPrice"
             type="number"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
@@ -165,7 +169,11 @@ export function SearchFilters({
             className="px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Minimum price"
           />
+          <label htmlFor="maxPrice" className="sr-only">
+            Maximum price
+          </label>
           <input
+            id="maxPrice"
             type="number"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
@@ -177,7 +185,7 @@ export function SearchFilters({
             aria-label="Maximum price"
           />
         </div>
-      </div>
+      </fieldset>
 
       {/* Date Filter */}
       <div className="space-y-2">

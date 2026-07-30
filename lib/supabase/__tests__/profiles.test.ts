@@ -6,10 +6,28 @@ const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
 
-describe('Profiles Table & Signup Trigger Integration Tests', () => {
-  const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+function createAnonClient() {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
+}
 
+function createAuthClient(tag: string) {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      storageKey: `profile-test-${tag}-${Date.now()}`,
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
+}
+
+describe('Profiles Table & Signup Trigger Integration Tests', () => {
   it('automatically creates a profile record with roles={buyer} when a user signs up', async () => {
+    const anonClient = createAnonClient()
     const email = `test-profile-trigger-${Date.now()}@example.com`
     const password = 'Password123!'
     const fullName = 'Trigger Test User'
@@ -48,8 +66,8 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
     const userBEmail = `userb-${Date.now()}@example.com`
     const password = 'Password123!'
 
-    // Create User A
-    const clientA = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    // Create User A with isolated auth storage
+    const clientA = createAuthClient('a')
     const { data: userAData } = await clientA.auth.signUp({
       email: userAEmail,
       password,
@@ -57,16 +75,19 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
     })
     const userAId = userAData.user!.id
 
-    // Create User B
-    const clientB = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    // Create User B with isolated auth storage
+    const clientB = createAuthClient('b')
     await clientB.auth.signUp({
       email: userBEmail,
       password,
       options: { data: { full_name: 'User B' } },
     })
 
+    // Use a dedicated read-only client for public reads
+    const reader = createAnonClient()
+
     // Any client can read User A's profile
-    const { data: profileA, error: readError } = await anonClient
+    const { data: profileA, error: readError } = await reader
       .from('profiles')
       .select('*')
       .eq('id', userAId)
@@ -83,7 +104,7 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
 
     expect(updateOwnError).toBeNull()
 
-    const { data: updatedProfileA } = await anonClient
+    const { data: updatedProfileA } = await reader
       .from('profiles')
       .select('bio')
       .eq('id', userAId)
@@ -101,7 +122,7 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
     expect(userBUpdateResult).toEqual([]) // 0 rows updated
 
     // Verify User A's bio was NOT changed by User B
-    const { data: unchangedProfileA } = await anonClient
+    const { data: unchangedProfileA } = await reader
       .from('profiles')
       .select('bio')
       .eq('id', userAId)

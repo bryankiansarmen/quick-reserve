@@ -1,8 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SearchFilters } from '../components/SearchFilters'
 import type { ListingSearchParams } from '../types'
+
+function debounceWait() {
+  return new Promise(resolve => setTimeout(resolve, 350))
+}
 
 describe('SearchFilters', () => {
   const mockOnFilterChange = vi.fn()
@@ -10,11 +14,6 @@ describe('SearchFilters', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('renders all filter inputs', () => {
@@ -24,7 +23,7 @@ describe('SearchFilters', () => {
 
     expect(screen.getByLabelText('Category')).toBeInTheDocument()
     expect(screen.getByLabelText('Location')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Price Range/)).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /Price Range/ })).toBeInTheDocument()
     expect(screen.getByLabelText('Available Date')).toBeInTheDocument()
     expect(screen.getByLabelText('Sort By')).toBeInTheDocument()
   })
@@ -35,7 +34,7 @@ describe('SearchFilters', () => {
     )
 
     const categorySelect = screen.getByLabelText('Category') as HTMLSelectElement
-    expect(categorySelect.options).toHaveLength(5) // All Categories + 4 options
+    expect(categorySelect.options).toHaveLength(5)
 
     expect(categorySelect.options[0]).toHaveTextContent('All Categories')
     expect(categorySelect.options[1]).toHaveTextContent('Photography Studio')
@@ -54,20 +53,16 @@ describe('SearchFilters', () => {
     const locationInput = screen.getByLabelText('Location')
     await user.type(locationInput, 'Los Angeles')
 
-    // Should not call immediately
     expect(mockOnFilterChange).not.toHaveBeenCalled()
 
-    // Fast-forward 300ms (debounce time)
-    vi.advanceTimersByTime(300)
+    await debounceWait()
 
-    await waitFor(() => {
-      expect(mockOnFilterChange).toHaveBeenCalledWith(
-        expect.objectContaining({
-          location: 'Los Angeles',
-          page: 1,
-        })
-      )
-    })
+    expect(mockOnFilterChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        location: 'Los Angeles',
+        page: 1,
+      })
+    )
   })
 
   it('converts dollars to cents for price filters', async () => {
@@ -80,12 +75,12 @@ describe('SearchFilters', () => {
     const minPriceInput = screen.getByLabelText('Minimum price')
     await user.type(minPriceInput, '50')
 
-    vi.advanceTimersByTime(300)
+    await debounceWait()
 
     await waitFor(() => {
       expect(mockOnFilterChange).toHaveBeenCalledWith(
         expect.objectContaining({
-          minPrice: 5000, // 50 * 100
+          minPrice: 5000,
           page: 1,
         })
       )
@@ -105,12 +100,9 @@ describe('SearchFilters', () => {
     await user.type(minPriceInput, '100')
     await user.type(maxPriceInput, '50')
 
-    vi.advanceTimersByTime(300)
+    await debounceWait()
 
-    // Should not call onFilterChange because price range is invalid
-    await waitFor(() => {
-      expect(mockOnFilterChange).not.toHaveBeenCalled()
-    })
+    expect(mockOnFilterChange).not.toHaveBeenCalled()
   })
 
   it('resets all filters when reset button clicked', async () => {
@@ -179,8 +171,8 @@ describe('SearchFilters', () => {
 
     expect(screen.getByLabelText('Category')).toHaveValue('event-venue')
     expect(screen.getByLabelText('Location')).toHaveValue('New York')
-    expect(screen.getByLabelText('Minimum price')).toHaveValue(30) // 3000 / 100
-    expect(screen.getByLabelText('Maximum price')).toHaveValue(80) // 8000 / 100
+    expect(screen.getByLabelText('Minimum price')).toHaveValue(30)
+    expect(screen.getByLabelText('Maximum price')).toHaveValue(80)
     expect(screen.getByLabelText('Available Date')).toHaveValue('2026-07-30')
     expect(screen.getByLabelText('Sort By')).toHaveValue('price_asc')
   })
@@ -190,7 +182,7 @@ describe('SearchFilters', () => {
 
     const filtersOnPage2: ListingSearchParams = {
       sort: 'newest',
-      page: 5, // User was on page 5
+      page: 5,
     }
 
     render(
@@ -201,14 +193,14 @@ describe('SearchFilters', () => {
     )
 
     const categorySelect = screen.getByLabelText('Category')
-    await user.selectOption(categorySelect, 'photography-studio')
+    await user.selectOptions(categorySelect, ['photography-studio'])
 
-    vi.advanceTimersByTime(300)
+    await debounceWait()
 
     await waitFor(() => {
       expect(mockOnFilterChange).toHaveBeenCalledWith(
         expect.objectContaining({
-          page: 1, // Should reset to 1
+          page: 1,
         })
       )
     })
@@ -233,9 +225,9 @@ describe('SearchFilters', () => {
     )
 
     const categorySelect = screen.getByLabelText('Category')
-    await user.selectOption(categorySelect, 'meeting-room')
+    await user.selectOptions(categorySelect, ['meeting-room'])
 
-    vi.advanceTimersByTime(300)
+    await debounceWait()
 
     await waitFor(() => {
       expect(mockOnFilterChange).toHaveBeenCalledWith(
@@ -254,9 +246,9 @@ describe('SearchFilters', () => {
     )
 
     const sortSelect = screen.getByLabelText('Sort By')
-    await user.selectOption(sortSelect, 'price_desc')
+    await user.selectOptions(sortSelect, ['price_desc'])
 
-    vi.advanceTimersByTime(300)
+    await debounceWait()
 
     await waitFor(() => {
       expect(mockOnFilterChange).toHaveBeenCalledWith(

@@ -9,7 +9,11 @@ import { describe, it, expect } from 'vitest'
  *
  * Test data: relies on existing published listings in the database.
  * If running with an empty database, tests will pass with empty result sets.
+ *
+ * Run via: TEST_INTEGRATION=true npm test
  */
+
+const isIntegrationTest = process.env.TEST_INTEGRATION === 'true'
 
 interface ListingResult {
   id: string
@@ -45,7 +49,7 @@ async function searchAPI(
   return { status: response.status, data }
 }
 
-describe('GET /api/listings - Search API', () => {
+describe.skipIf(!isIntegrationTest)('GET /api/listings - Search API', () => {
   describe('Response structure', () => {
     it('returns 200 with valid response shape', async () => {
       const { status, data } = await searchAPI({})

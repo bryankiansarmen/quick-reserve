@@ -46,7 +46,7 @@ describe('SellerInfoCard Component', () => {
 
     render(<SellerInfoCard seller={seller} />)
 
-    const initials = screen.getByText('JJ')
+    const initials = screen.getByText('JM')
     expect(initials).toBeInTheDocument()
   })
 

@@ -14,7 +14,13 @@ const SUPABASE_SERVICE_ROLE_KEY =
 
 /** Create a brand-new authenticated Supabase client for a test user. */
 async function signUpSeller(tag: string) {
-  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      storageKey: `test-${tag}-${Date.now()}`, // Unique storage per client
+      persistSession: false, // Don't persist between tests
+      autoRefreshToken: false, // Not needed for short-lived tests
+    },
+  })
   const email = `seller-${tag}-${Date.now()}@example.com`
   const password = 'Password123!'
   const { data, error } = await client.auth.signUp({
