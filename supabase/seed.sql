@@ -8,46 +8,15 @@
 -- The handle_new_user() trigger on auth.users auto-creates profiles rows.
 -- We insert auth users and then update profiles to add seller roles.
 
-WITH
-  seller_alice AS (
-    INSERT INTO auth.users (email, encrypted_password, email_confirmed_at, raw_user_meta_data, created_at, updated_at)
-    VALUES (
-      'alice@example.com',
-      crypt('password123', gen_salt('bf')),
-      now(),
-      jsonb_build_object('full_name', 'Alice Johnson'),
-      now(),
-      now()
-    )
-    RETURNING id
-  ),
-  seller_bob AS (
-    INSERT INTO auth.users (email, encrypted_password, email_confirmed_at, raw_user_meta_data, created_at, updated_at)
-    VALUES (
-      'bob@example.com',
-      crypt('password123', gen_salt('bf')),
-      now(),
-      jsonb_build_object('full_name', 'Bob Smith'),
-      now(),
-      now()
-    )
-    RETURNING id
-  ),
-  buyer_carol AS (
-    INSERT INTO auth.users (email, encrypted_password, email_confirmed_at, raw_user_meta_data, created_at, updated_at)
-    VALUES (
-      'carol@example.com',
-      crypt('password123', gen_salt('bf')),
-      now(),
-      jsonb_build_object('full_name', 'Carol Davis'),
-      now(),
-      now()
-    )
-    RETURNING id
-  )
+INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, raw_user_meta_data, created_at, updated_at)
+VALUES
+  (gen_random_uuid(), 'alice@example.com', crypt('password123', gen_salt('bf')), now(), jsonb_build_object('full_name', 'Alice Johnson'), now(), now()),
+  (gen_random_uuid(), 'bob@example.com',   crypt('password123', gen_salt('bf')), now(), jsonb_build_object('full_name', 'Bob Smith'),   now(), now()),
+  (gen_random_uuid(), 'carol@example.com', crypt('password123', gen_salt('bf')), now(), jsonb_build_object('full_name', 'Carol Davis'), now(), now());
+
 UPDATE public.profiles
 SET roles = ARRAY['buyer', 'seller'], bio = 'Professional space host.'
-WHERE id IN (SELECT id FROM seller_alice UNION SELECT id FROM seller_bob);
+WHERE id IN (SELECT id FROM auth.users WHERE email IN ('alice@example.com', 'bob@example.com'));
 
 -- Seed listings ----------------------------------------------------------------
 
