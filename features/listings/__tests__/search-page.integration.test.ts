@@ -2,8 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { searchListings } from '../queries'
 import type { ListingSearchParams } from '../types'
 
-type MockData = any
-type MockBuilder = Record<string, any>
+type MockData = Record<string, unknown>
+interface MockBuilder {
+  [method: string]: MockBuilder | ((resolve: (value: unknown) => void) => Promise<unknown>)
+  then: (resolve: (value: unknown) => void) => Promise<unknown>
+}
 
 function createMockBuilder(): MockBuilder {
   const builder: MockBuilder = {}
