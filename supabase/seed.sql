@@ -4,16 +4,30 @@
 -- Creates: 2 sellers, 1 buyer, 4 listings, availability slots (some booked).
 -- Passwords for all seed users: password123
 
+-- Enable pgcrypto for crypt()
+create extension if not exists pgcrypto with schema public;
+
 -- Seed auth.users --------------------------------------------------------------
 -- The handle_new_user() trigger on auth.users auto-creates profiles rows.
 -- We insert auth users and then update profiles to add seller roles.
+--
+-- NOTE: GoTrue v2.193+ requires: instance_id, aud, role to be non-null,
+-- and a corresponding row in auth.identities for login to work.
 
-INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, raw_user_meta_data, created_at, updated_at)
+INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, confirmation_token, recovery_token, email_change_token_new, email_change, phone, phone_change, phone_change_token, email_change_token_current, reauthentication_token, raw_user_meta_data, created_at, updated_at)
 VALUES
-  (gen_random_uuid(), 'alice@example.com', crypt('password123', gen_salt('bf')), now(), jsonb_build_object('full_name', 'Alice Johnson'), now(), now()),
-  (gen_random_uuid(), 'bob@example.com',   crypt('password123', gen_salt('bf')), now(), jsonb_build_object('full_name', 'Bob Smith'),   now(), now()),
-  (gen_random_uuid(), 'carol@example.com', crypt('password123', gen_salt('bf')), now(), jsonb_build_object('full_name', 'Carol Davis'), now(), now());
+  ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'alice@example.com', crypt('password123', gen_salt('bf', 10)), now(), '', '', '', '', '+15551230001', '', '', '', '', jsonb_build_object('full_name', 'Alice Johnson'), now(), now()),
+  ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'bob@example.com',   crypt('password123', gen_salt('bf', 10)), now(), '', '', '', '', '+15551230002', '', '', '', '', jsonb_build_object('full_name', 'Bob Smith'),   now(), now()),
+  ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'carol@example.com', crypt('password123', gen_salt('bf', 10)), now(), '', '', '', '', '+15551230003', '', '', '', '', jsonb_build_object('full_name', 'Carol Davis'), now(), now());
 
+-- Seed auth.identities ---------------------------------------------------------
+-- GoTrue requires an identity row for each email/password user.
+INSERT INTO auth.identities (provider, provider_id, identity_data, user_id, last_sign_in_at, created_at, updated_at)
+SELECT 'email', id, jsonb_build_object('sub', id::text, 'email', email, 'email_verified', true), id, now(), now(), now()
+FROM auth.users
+WHERE email IN ('alice@example.com', 'bob@example.com', 'carol@example.com');
+
+-- Update auto-created profiles to add seller roles -----------------------------
 UPDATE public.profiles
 SET roles = ARRAY['buyer', 'seller'], bio = 'Professional space host.'
 WHERE id IN (SELECT id FROM auth.users WHERE email IN ('alice@example.com', 'bob@example.com'));
@@ -51,7 +65,7 @@ BEGIN
     alice_id,
     'Cozy Garden Event Space',
     'Charming 500 sqft garden pavilion with string lights, picnic tables, and a catering prep area. Perfect for birthday parties, baby showers, and intimate weddings up to 30 guests.',
-    'event-space',
+    'event-venue',
     15000,
     'Midtown',
     'request',
@@ -64,7 +78,7 @@ BEGIN
     bob_id,
     'Modern Kitchen for Cooking Classes',
     'Professional-grade kitchen with 6-burner Wolf range, dual ovens, walk-in cooler, prep stations for 12 students, and overhead mirrors. Inspected and licensed for commercial food prep.',
-    'kitchen',
+    'meeting-room',
     20000,
     'East Side',
     'instant',
@@ -77,7 +91,7 @@ BEGIN
     bob_id,
     'Peaceful Yoga Loft',
     'Sun-drenched 800 sqft loft with bamboo flooring, floor-to-ceiling mirrors, essential oil diffusers, and 20 yoga mats + blocks. Heated floors for winter practice.',
-    'wellness-studio',
+    'activity-space',
     6000,
     'West End',
     'request',
