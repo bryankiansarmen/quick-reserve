@@ -1,9 +1,9 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { addSlotAction } from '../slot-actions'
-import { formatTimeRange, formatDuration } from '../validation'
-import type { SlotActionState } from '../types'
+import { addSlotAction } from '../actions'
+import { formatTimeRange, formatDuration } from '@/features/listings/validation'
+import type { SlotActionState } from '@/features/listings/types'
 
 interface AddSlotFormProps {
   listingId: string
@@ -35,87 +35,71 @@ function inputClass(hasError: boolean) {
   return hasError ? inputError : inputNormal
 }
 
-/**
- * Form for adding availability slots.
- * Auto-sets end time to start + 1 hour for UX convenience.
- * Shows prominent overlap error with conflicting slot details (CRITICAL for Task DoD).
- * On success, clears form and shows success message (stays on page).
- */
 export function AddSlotForm({ listingId }: AddSlotFormProps) {
   const [state, formAction, isPending] = useActionState<SlotActionState | null, FormData>(
     addSlotAction,
     null
   )
-  
+
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
   const [prevSuccessState, setPrevSuccessState] = useState(false)
-  
-  // Track when success state changes
+
   if (state?.success && !prevSuccessState) {
     setPrevSuccessState(true)
     setShowSuccess(true)
     setStartTime('')
     setEndTime('')
-    // Hide success message after 3 seconds
     setTimeout(() => {
       setShowSuccess(false)
     }, 3000)
   } else if (!state?.success && prevSuccessState) {
-    // Reset tracking when state is no longer success
     setPrevSuccessState(false)
   }
-  
-  // Auto-set end time to start + 1 hour when start changes
+
   const handleStartTimeChange = (value: string) => {
     setStartTime(value)
     if (value) {
-      // datetime-local values are in local time, not UTC
-      // Parse as local time, add 1 hour, then format back to datetime-local format
       const [datePart, timePart] = value.split('T')
       const [hours, minutes] = timePart.split(':')
-      
+
       const start = new Date(datePart)
       start.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
-      
-      const end = new Date(start.getTime() + 60 * 60 * 1000) // +1 hour
-      
-      // Format end time back to datetime-local format
+
+      const end = new Date(start.getTime() + 60 * 60 * 1000)
+
       const year = end.getFullYear()
       const month = String(end.getMonth() + 1).padStart(2, '0')
       const date = String(end.getDate()).padStart(2, '0')
       const endHours = String(end.getHours()).padStart(2, '0')
       const endMinutes = String(end.getMinutes()).padStart(2, '0')
-      
+
       const endISO = `${year}-${month}-${date}T${endHours}:${endMinutes}`
       setEndTime(endISO)
     }
   }
-  
+
   const errors = state?.errors ?? {}
-  
-  // Calculate minimum datetime (current time in local timezone)
+
   const now = new Date()
   const minDateTime = now.toISOString().slice(0, 16)
-  
-  // Show duration preview
+
   const durationPreview = startTime && endTime
     ? formatDuration(startTime, endTime)
     : null
-  
+
   return (
     <form action={formAction} className="space-y-6" noValidate>
       <input type="hidden" name="listing_id" value={listingId} />
-      
-      {/* SUCCESS MESSAGE */}
+
       {showSuccess && (
         <div className="rounded-lg border-2 border-green-500 bg-green-50 dark:bg-green-950/20 px-4 py-3 animate-in fade-in duration-300">
           <div className="flex gap-3">
-            <svg 
-              className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
               aria-hidden="true"
             >
@@ -127,15 +111,14 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
           </div>
         </div>
       )}
-      
-      {/* OVERLAP ERROR - Prominently displayed per Task DoD */}
+
       {errors.overlap && (
         <div className="rounded-lg border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/20 px-4 py-3">
           <div className="flex gap-3">
-            <svg 
-              className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
               aria-hidden="true"
             >
@@ -148,7 +131,6 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
               <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
                 {errors.overlap[0]}
               </p>
-              {/* Show conflicting slot details - CRITICAL for Task DoD */}
               {state?.conflictingSlot && (
                 <p className="mt-2 text-sm text-amber-700 dark:text-amber-300 font-medium">
                   Conflicts with: {formatTimeRange(
@@ -161,15 +143,13 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
           </div>
         </div>
       )}
-      
-      {/* General errors */}
+
       {errors.general && (
         <div className="rounded-lg bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-700 dark:text-red-300" role="alert">
           {errors.general[0]}
         </div>
       )}
-      
-      {/* Start time */}
+
       <div>
         <label htmlFor="start_time" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
           Start time <span className="text-red-500">*</span>
@@ -187,8 +167,7 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
         />
         {errors.start_time && <FieldError messages={errors.start_time} />}
       </div>
-      
-      {/* End time */}
+
       <div>
         <label htmlFor="end_time" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
           End time <span className="text-red-500">*</span>
@@ -205,16 +184,14 @@ export function AddSlotForm({ listingId }: AddSlotFormProps) {
           aria-describedby={errors.end_time ? 'end-time-error' : undefined}
         />
         {errors.end_time && <FieldError messages={errors.end_time} />}
-        
-        {/* Duration preview */}
+
         {durationPreview && (
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             Duration: {durationPreview}
           </p>
         )}
       </div>
-      
-      {/* Submit button */}
+
       <button
         type="submit"
         disabled={isPending}

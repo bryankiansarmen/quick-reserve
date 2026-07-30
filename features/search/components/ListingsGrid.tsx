@@ -1,7 +1,7 @@
 'use client'
 
-import { ListingCard } from './ListingCard'
-import type { PaginatedListingsResponse } from '../types'
+import { ListingCard } from '@/features/listings/components/ListingCard'
+import type { PaginatedListingsResponse } from '@/features/listings/types'
 
 interface ListingsGridProps {
   results: PaginatedListingsResponse
@@ -9,19 +9,6 @@ interface ListingsGridProps {
   onPageChange: (page: number) => void
 }
 
-/**
- * ListingsGrid: Displays search results in a responsive grid with pagination.
- *
- * Features:
- * - Responsive grid: 1 col (mobile), 2 (tablet), 3 (desktop), 4 (wide)
- * - Empty state with helpful messaging
- * - Loading skeleton cards (matches actual card layout)
- * - Smart pagination with ellipsis
- * - Result count display
- * - Accessible pagination controls with ARIA labels
- *
- * Used in: Search page
- */
 export function ListingsGrid({
   results,
   isLoading,
@@ -31,7 +18,6 @@ export function ListingsGrid({
   const { page, pageSize, total } = pagination
   const totalPages = Math.ceil(total / pageSize)
 
-  // Empty state
   if (!isLoading && data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -60,7 +46,6 @@ export function ListingsGrid({
 
   return (
     <div className="space-y-8">
-      {/* Result count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           {isLoading ? (
@@ -74,10 +59,8 @@ export function ListingsGrid({
         </p>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {isLoading ? (
-          // Loading skeletons
           Array.from({ length: pageSize }).map((_, i) => (
             <SkeletonCard key={i} data-testid="skeleton-card" />
           ))
@@ -86,13 +69,11 @@ export function ListingsGrid({
         )}
       </div>
 
-      {/* Pagination */}
       {!isLoading && totalPages > 1 && (
         <nav
           className="flex justify-center items-center gap-2 pt-4"
           aria-label="Pagination navigation"
         >
-          {/* Previous button */}
           <button
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
@@ -102,16 +83,13 @@ export function ListingsGrid({
             Previous
           </button>
 
-          {/* Page numbers */}
           <div className="flex gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-              // Show first, last, current, and 2 pages around current
               const isVisible =
                 pageNum === 1 ||
                 pageNum === totalPages ||
                 Math.abs(pageNum - page) <= 1
 
-              // Show ellipsis for skipped pages
               if (!isVisible && pageNum === 2 && page > 4) {
                 return (
                   <span
@@ -155,7 +133,6 @@ export function ListingsGrid({
             })}
           </div>
 
-          {/* Next button */}
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={page === totalPages}
@@ -170,28 +147,19 @@ export function ListingsGrid({
   )
 }
 
-/**
- * SkeletonCard: Loading placeholder that matches actual ListingCard dimensions.
- * Prevents layout shift during loading (CLS < 0.1).
- */
 function SkeletonCard({ ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className="rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700 animate-pulse"
       {...props}
     >
-      {/* Image skeleton */}
       <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700" />
 
-      {/* Content skeleton */}
       <div className="p-4 space-y-3">
-        {/* Title skeleton */}
         <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4" />
 
-        {/* Location skeleton */}
         <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2" />
 
-        {/* Price/Rating row skeleton */}
         <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4" />
       </div>
     </div>

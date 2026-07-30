@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { ListingsGrid } from '../components/ListingsGrid'
-import type { PaginatedListingsResponse } from '../types'
+import type { PaginatedListingsResponse } from '@/features/listings/types'
 
 const mockResults: PaginatedListingsResponse = {
   data: [
@@ -85,7 +85,6 @@ describe('ListingsGrid', () => {
       <ListingsGrid results={multiPageResults} onPageChange={mockOnPageChange} />
     )
 
-    // Should show first page, nearby pages, and last page
     expect(screen.getByLabelText('Page 1')).toBeInTheDocument()
     expect(screen.getByLabelText('Page 2')).toBeInTheDocument()
     expect(screen.getByLabelText('Page 10')).toBeInTheDocument()
@@ -134,7 +133,6 @@ describe('ListingsGrid', () => {
       />
     )
 
-    // Should render skeletons instead of actual cards
     const skeletons = container.querySelectorAll('[data-testid="skeleton-card"]')
     expect(skeletons.length).toBe(mockResults.pagination.pageSize)
   })
@@ -205,7 +203,6 @@ describe('ListingsGrid', () => {
       />
     )
 
-    // When loading, should show skeletons, not empty state
     const { container } = render(
       <ListingsGrid
         results={emptyResults}
@@ -227,7 +224,6 @@ describe('ListingsGrid', () => {
       <ListingsGrid results={lastPagePartial} onPageChange={mockOnPageChange} />
     )
 
-    // Page 5 with pageSize 10: showing 41-41 (last one)
     expect(screen.getByText(/Showing 41–41 of 41 listings/)).toBeInTheDocument()
   })
 })

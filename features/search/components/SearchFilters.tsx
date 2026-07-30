@@ -3,8 +3,8 @@
 import { useState, useCallback, useEffect } from 'react'
 import { CATEGORY_OPTIONS } from '@/lib/constants/categories'
 import { dollarsToCents } from '@/lib/utils/currency'
-import { searchQuerySchema, type ListingCategory } from '../validation'
-import type { ListingSearchParams } from '../types'
+import { searchQuerySchema, type ListingCategory } from '@/features/listings/validation'
+import type { ListingSearchParams } from '@/features/listings/types'
 
 interface SearchFiltersProps {
   initialFilters: ListingSearchParams
@@ -12,19 +12,6 @@ interface SearchFiltersProps {
   isLoading?: boolean
 }
 
-/**
- * SearchFilters: Client component for filtering listings.
- *
- * Features:
- * - Category dropdown, location text input, price range, date picker, sort dropdown
- * - Debounced updates (300ms) to avoid excessive API calls
- * - Client-side validation with searchQuerySchema
- * - Reset button to clear all filters
- * - Disabled state during loading
- * - Accessible labels and form structure
- *
- * Used in: Search page
- */
 export function SearchFilters({
   initialFilters,
   onFilterChange,
@@ -41,10 +28,8 @@ export function SearchFilters({
   const [date, setDate] = useState(initialFilters.date || '')
   const [sort, setSort] = useState(initialFilters.sort || 'newest')
 
-  // Debounced filter update
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Convert dollars to cents
       const minPriceCents = minPrice ? dollarsToCents(minPrice) : undefined
       const maxPriceCents = maxPrice ? dollarsToCents(maxPrice) : undefined
 
@@ -59,15 +44,14 @@ export function SearchFilters({
         }),
         ...(date && { date }),
         sort: sort as typeof sort,
-        page: 1, // Reset to page 1 on filter change
+        page: 1,
       }
 
-      // Validate before sending
       const result = searchQuerySchema.safeParse(filters)
       if (result.success) {
         onFilterChange(result.data)
       }
-    }, 300) // 300ms debounce
+    }, 300)
 
     return () => clearTimeout(timer)
   }, [category, location, minPrice, maxPrice, date, sort, onFilterChange])
@@ -82,12 +66,10 @@ export function SearchFilters({
     onFilterChange({ sort: 'newest', page: 1 })
   }, [onFilterChange])
 
-  // Get minimum date (today)
   const minDate = new Date().toISOString().split('T')[0]
 
   return (
     <div className="space-y-6 p-6 bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
-      {/* Header with Reset button */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Filters
@@ -103,7 +85,6 @@ export function SearchFilters({
         </button>
       </div>
 
-      {/* Category Filter */}
       <div className="space-y-2">
         <label
           htmlFor="category"
@@ -128,7 +109,6 @@ export function SearchFilters({
         </select>
       </div>
 
-      {/* Location Filter */}
       <div className="space-y-2">
         <label
           htmlFor="location"
@@ -148,7 +128,6 @@ export function SearchFilters({
         />
       </div>
 
-      {/* Price Range Filter */}
       <fieldset className="space-y-2">
         <legend className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Price Range ($/hour)
@@ -187,7 +166,6 @@ export function SearchFilters({
         </div>
       </fieldset>
 
-      {/* Date Filter */}
       <div className="space-y-2">
         <label
           htmlFor="date"
@@ -207,7 +185,6 @@ export function SearchFilters({
         />
       </div>
 
-      {/* Sort Filter */}
       <div className="space-y-2">
         <label
           htmlFor="sort"

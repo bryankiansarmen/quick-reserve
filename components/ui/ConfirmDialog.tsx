@@ -13,11 +13,6 @@ interface ConfirmDialogProps {
   isDestructive?: boolean
 }
 
-/**
- * Reusable confirmation modal dialog.
- * Keyboard navigation, Escape to close, focus trap.
- * Dismissible via Escape and backdrop click.
- */
 export function ConfirmDialog({
   isOpen,
   title,
@@ -28,33 +23,32 @@ export function ConfirmDialog({
   onCancel,
   isDestructive = false,
 }: ConfirmDialogProps) {
-  // Handle Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onCancel()
       }
     }
-    
+
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen, onCancel])
-  
+
   if (!isOpen) return null
-  
+
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onCancel}
       aria-labelledby="dialog-title"
       role="dialog"
       aria-modal="true"
     >
-      <div 
+      <div
         className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 
+        <h2
           id="dialog-title"
           className="text-lg font-semibold text-slate-900 dark:text-white mb-2"
         >

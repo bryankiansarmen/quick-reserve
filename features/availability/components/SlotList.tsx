@@ -1,47 +1,41 @@
 'use client'
 
 import { useState } from 'react'
-import { deleteSlotAction } from '../slot-actions'
-import { formatTimeRange, formatDuration } from '../validation'
-import { ConfirmDialog } from './ConfirmDialog'
-import type { AvailabilitySlot } from '../types'
+import { deleteSlotAction } from '../actions'
+import { formatTimeRange, formatDuration } from '@/features/listings/validation'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import type { AvailabilitySlot } from '@/features/listings/types'
 
 interface SlotListProps {
   slots: AvailabilitySlot[]
   listingId: string
 }
 
-/**
- * Displays availability slots as a table.
- * Accessibility: semantic table, descriptive delete buttons, status in text+color
- */
 export function SlotList({ slots, listingId }: SlotListProps) {
   const [deletingSlotId, setDeletingSlotId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   const handleDeleteClick = (slotId: string) => {
     setDeletingSlotId(slotId)
     setError(null)
   }
-  
+
   const handleConfirmDelete = async () => {
     if (!deletingSlotId) return
-    
+
     setIsDeleting(true)
     const result = await deleteSlotAction(listingId, deletingSlotId)
     setIsDeleting(false)
-    
+
     if (result.errors?.general) {
       setError(result.errors.general[0])
       setDeletingSlotId(null)
     } else if (result.success) {
       setDeletingSlotId(null)
-      // Page will revalidate automatically via revalidatePath
     }
   }
-  
-  // Empty state
+
   if (slots.length === 0) {
     return (
       <div className="text-center py-12 bg-slate-50 dark:bg-slate-900 rounded-lg">
@@ -51,20 +45,18 @@ export function SlotList({ slots, listingId }: SlotListProps) {
       </div>
     )
   }
-  
+
   return (
     <>
-      {/* Error banner */}
       {error && (
-        <div 
+        <div
           className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300"
           role="alert"
         >
           {error}
         </div>
       )}
-      
-      {/* Slots table */}
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <caption className="sr-only">
@@ -96,7 +88,6 @@ export function SlotList({ slots, listingId }: SlotListProps) {
                   {formatDuration(slot.start_time, slot.end_time)}
                 </td>
                 <td className="py-3 px-4">
-                  {/* Status badges - text + color */}
                   {slot.is_booked ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
                       Booked
@@ -124,8 +115,7 @@ export function SlotList({ slots, listingId }: SlotListProps) {
           </tbody>
         </table>
       </div>
-      
-      {/* Confirmation modal */}
+
       <ConfirmDialog
         isOpen={deletingSlotId !== null}
         title="Delete Availability Slot?"

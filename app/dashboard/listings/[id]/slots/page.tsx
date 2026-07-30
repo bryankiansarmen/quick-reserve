@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { fetchSlots } from '@/features/listings/slot-actions'
-import { AddSlotForm } from '@/features/listings/components/AddSlotForm'
-import { SlotList } from '@/features/listings/components/SlotList'
+import { fetchSlots } from '@/features/availability/actions'
+import { AddSlotForm } from '@/features/availability/components/AddSlotForm'
+import { SlotList } from '@/features/availability/components/SlotList'
 
 interface PageProps {
   params: Promise<{ id: string }>

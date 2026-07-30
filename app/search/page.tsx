@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { searchListings } from '@/features/listings/queries'
 import { searchQuerySchema } from '@/features/listings/validation'
-import { SearchPageClient } from '@/features/listings/components/SearchPageClient'
+import { SearchPageClient } from '@/features/search/components/SearchPageClient'
 
 export const dynamic = 'force-dynamic'
 
