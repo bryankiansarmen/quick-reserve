@@ -1,5 +1,5 @@
 import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
-import { Booking, CheckoutBooking, BuyerBookingListItem, BuyerBookingsList } from './types'
+import { Booking, CheckoutBooking, BuyerBookingListItem, BuyerBookingsList, SellerBookingListItem, SellerBookingsList } from './types'
 
 export interface VerifiedSlot {
   id: string
@@ -245,4 +245,109 @@ export async function getBuyerBookings(
   )
 
   return { upcoming, past }
+}
+
+/**
+ * Fetch every booking across the authenticated seller's listings.
+ *
+ * RLS policy "sellers read bookings on own listings" enforces the scoping
+ * automatically on the session-scoped client — bookings on listings the
+ * caller does not own never appear here, so no explicit `seller_id` filter
+ * is needed in app code.
+ *
+ * Items are split into `pending` (status `pending` — the accept/decline
+ * queue) and `other` (every other status) after a single round-trip,
+ * mirroring the buyer list's single-query contract.
+ *
+ * A query failure resolves to empty lists (with a logged error) so the page
+ * renders its empty state rather than crashing on a transient DB hiccup.
+ */
+export async function getSellerBookings(
+  supabase: SupabaseClient,
+): Promise<SellerBookingsList> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select(
+      `
+      id,
+      status,
+      amount_cents,
+      created_at,
+      slot:availability_slots(
+        start_time,
+        end_time
+      ),
+      listing:listings(
+        id,
+        title,
+        location,
+        images,
+        booking_mode
+      ),
+      buyer:profiles(
+        full_name
+      )
+    `,
+    )
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('[getSellerBookings] Error fetching seller bookings:', {
+      code: error.code,
+      message: error.message,
+      ...(process.env.NODE_ENV === 'development' && { details: error.details }),
+    })
+    return { pending: [], other: [] }
+  }
+
+  const pending: SellerBookingListItem[] = []
+  const other: SellerBookingListItem[] = []
+
+  for (const row of data || []) {
+    const slot = Array.isArray(row.slot) ? row.slot[0] : row.slot
+    const listing = Array.isArray(row.listing) ? row.listing[0] : row.listing
+    const buyer = Array.isArray(row.buyer) ? row.buyer[0] : row.buyer
+    if (!slot || !listing || !buyer) continue
+
+    const item: SellerBookingListItem = {
+      id: row.id,
+      status: row.status,
+      amount_cents: row.amount_cents,
+      created_at: row.created_at,
+      booking_mode: listing.booking_mode,
+      listing: {
+        id: listing.id,
+        title: listing.title,
+        location: listing.location,
+        image:
+          Array.isArray(listing.images) && listing.images.length > 0
+            ? listing.images[0]
+            : null,
+      },
+      slot: {
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+      },
+      buyer: {
+        full_name: buyer.full_name,
+      },
+    }
+
+    if (row.status === 'pending') {
+      pending.push(item)
+    } else {
+      other.push(item)
+    }
+  }
+
+  // Pending: oldest first (longest-waiting request needs attention first);
+  // Other: most recently created first.
+  pending.sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  )
+  other.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
+
+  return { pending, other }
 }

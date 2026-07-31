@@ -5,4 +5,10 @@ export const createBookingSchema = z.object({
   slot_id: z.string().uuid('slot_id must be a valid UUID'),
 })
 
+export const updateBookingSchema = z.object({
+  action: z.enum(['accept', 'decline', 'cancel']),
+})
+
+export type UpdateBookingInput = z.infer<typeof updateBookingSchema>
+
 export type CreateBookingInput = z.infer<typeof createBookingSchema>

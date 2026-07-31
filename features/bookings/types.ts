@@ -82,3 +82,48 @@ export interface BuyerBookingsList {
   upcoming: BuyerBookingListItem[]
   past: BuyerBookingListItem[]
 }
+
+export interface SellerBookingListItem {
+  id: string
+  status: BookingStatus
+  amount_cents: number
+  created_at: string
+  booking_mode: 'instant' | 'request'
+  listing: {
+    id: string
+    title: string
+    location: string
+    image: string | null
+  }
+  slot: {
+    start_time: string
+    end_time: string
+  }
+  buyer: {
+    full_name: string
+  }
+}
+
+export interface SellerBookingsList {
+  pending: SellerBookingListItem[]
+  other: SellerBookingListItem[]
+}
+
+export type UpdateBookingAction = 'accept' | 'decline' | 'cancel'
+
+export interface UpdateBookingRequest {
+  action: UpdateBookingAction
+}
+
+export type UpdateBookingErrorCode =
+  | 'UNAUTHENTICATED'
+  | 'FORBIDDEN'
+  | 'NOT_FOUND'
+  | 'VALIDATION_ERROR'
+  | 'INVALID_ACTION'
+  | 'INTERNAL_ERROR'
+
+export interface UpdateBookingErrorResponse {
+  code: UpdateBookingErrorCode
+  message: string
+}

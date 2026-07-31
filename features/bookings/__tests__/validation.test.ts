@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createBookingSchema } from '../validation'
+import { createBookingSchema, updateBookingSchema } from '../validation'
 
 const VALID_UUID_A = '550e8400-e29b-41d4-a716-446655440000'
 const VALID_UUID_B = '550e8400-e29b-41d4-a716-446655440001'
@@ -87,5 +87,44 @@ describe('createBookingSchema', () => {
       slot_id: VALID_UUID_B,
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('updateBookingSchema', () => {
+  it('accepts a valid accept action', () => {
+    const result = updateBookingSchema.safeParse({ action: 'accept' })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.action).toBe('accept')
+  })
+
+  it('accepts a valid decline action', () => {
+    const result = updateBookingSchema.safeParse({ action: 'decline' })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts a valid cancel action', () => {
+    const result = updateBookingSchema.safeParse({ action: 'cancel' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects an unknown action', () => {
+    const result = updateBookingSchema.safeParse({ action: 'approve' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a missing action', () => {
+    const result = updateBookingSchema.safeParse({})
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a non-string action', () => {
+    const result = updateBookingSchema.safeParse({ action: 42 })
+    expect(result.success).toBe(false)
+  })
+
+  it('strips extra fields by default', () => {
+    const result = updateBookingSchema.safeParse({ action: 'accept', extra: 'ignored' })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data).not.toHaveProperty('extra')
   })
 })
