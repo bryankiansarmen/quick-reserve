@@ -1,5 +1,5 @@
 import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
-import { Booking, CheckoutBooking } from './types'
+import { Booking, CheckoutBooking, BuyerBookingListItem, BuyerBookingsList } from './types'
 
 export interface VerifiedSlot {
   id: string
@@ -147,4 +147,102 @@ export async function getCheckoutBooking(
       full_name: seller.full_name,
     },
   }
+}
+
+/**
+ * Fetch every booking belonging to the authenticated buyer.
+ *
+ * RLS policy "buyers read own bookings" enforces `buyer_id = auth.uid()`
+ * automatically on the session-scoped client, so no explicit filter is
+ * needed — a booking owned by another user simply never appears here.
+ *
+ * Items are split into `upcoming` (slot start in the future and status not
+ * `cancelled`/`completed`) and `past` (everything else) after a single
+ * round-trip, avoiding two queries to the same table.
+ *
+ * A query failure resolves to empty lists (with a logged error) so the page
+ * renders its empty state rather than crashing on a transient DB hiccup.
+ */
+export async function getBuyerBookings(
+  supabase: SupabaseClient,
+): Promise<BuyerBookingsList> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select(
+      `
+      id,
+      status,
+      amount_cents,
+      created_at,
+      slot:availability_slots(
+        start_time,
+        end_time
+      ),
+      listing:listings(
+        id,
+        title,
+        location,
+        images
+      )
+    `,
+    )
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('[getBuyerBookings] Error fetching buyer bookings:', {
+      code: error.code,
+      message: error.message,
+      ...(process.env.NODE_ENV === 'development' && { details: error.details }),
+    })
+    return { upcoming: [], past: [] }
+  }
+
+  const now = new Date()
+  const upcoming: BuyerBookingListItem[] = []
+  const past: BuyerBookingListItem[] = []
+
+  for (const row of data || []) {
+    const slot = Array.isArray(row.slot) ? row.slot[0] : row.slot
+    const listing = Array.isArray(row.listing) ? row.listing[0] : row.listing
+    if (!slot || !listing) continue
+
+    const item: BuyerBookingListItem = {
+      id: row.id,
+      status: row.status,
+      amount_cents: row.amount_cents,
+      created_at: row.created_at,
+      listing: {
+        id: listing.id,
+        title: listing.title,
+        location: listing.location,
+        image:
+          Array.isArray(listing.images) && listing.images.length > 0
+            ? listing.images[0]
+            : null,
+      },
+      slot: {
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+      },
+    }
+
+    const slotInFuture = new Date(slot.start_time) >= now
+    const isActive = row.status !== 'cancelled' && row.status !== 'completed'
+
+    if (slotInFuture && isActive) {
+      upcoming.push(item)
+    } else {
+      past.push(item)
+    }
+  }
+
+  // Upcoming: soonest first; Past: most recently ended first.
+  upcoming.sort(
+    (a, b) => new Date(a.slot.start_time).getTime() - new Date(b.slot.start_time).getTime(),
+  )
+  past.sort(
+    (a, b) => new Date(b.slot.start_time).getTime() - new Date(a.slot.start_time).getTime(),
+  )
+
+  return { upcoming, past }
 }

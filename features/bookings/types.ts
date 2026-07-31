@@ -60,3 +60,25 @@ export interface CheckoutBooking {
 export interface CheckoutPageProps {
   bookingId: string
 }
+
+export interface BuyerBookingListItem {
+  id: string
+  status: BookingStatus
+  amount_cents: number
+  created_at: string
+  listing: {
+    id: string
+    title: string
+    location: string
+    image: string | null
+  }
+  slot: {
+    start_time: string
+    end_time: string
+  }
+}
+
+export interface BuyerBookingsList {
+  upcoming: BuyerBookingListItem[]
+  past: BuyerBookingListItem[]
+}

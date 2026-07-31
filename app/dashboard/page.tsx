@@ -91,6 +91,37 @@ export default async function DashboardPage() {
           </div>
         </section>
 
+        {/* My Bookings */}
+        <section
+          id="buyer-bookings-nav"
+          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white">
+              <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                My Bookings
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                View your upcoming and past bookings.
+              </p>
+            </div>
+          </div>
+          <div>
+            <Link
+              id="my-bookings-link"
+              href="/dashboard/bookings"
+              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+            >
+              View my bookings
+            </Link>
+          </div>
+        </section>
+
         {/* Seller section */}
         {isSeller ? (
           <section
