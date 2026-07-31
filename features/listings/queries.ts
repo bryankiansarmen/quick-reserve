@@ -13,11 +13,9 @@ import type {
  * - Filters by category, location (ILIKE), price range, and availability date
  * - Supports multiple sort orders: price_asc, price_desc, rating_desc, newest
  * - Implements offset-based pagination
- * - Returns placeholder ratings (0) (bookings/reviews) is complete
- *
- * TODO: Switch to published_listings_with_rating view once bookings and
- * reviews tables exist. This will populate
- * real avg_rating and review_count values instead of zeros.
+ * - Reads avg_rating/review_count from the published_listings_with_rating view
+ *   (the view only includes published listings, so the status filter below is
+ *   defensive rather than load-bearing)
  */
 export async function searchListings(
   params: ListingSearchParams,
@@ -37,9 +35,9 @@ export async function searchListings(
 
   // Base query: published listings only, with exact count
   let query = supabase
-    .from('listings')
+    .from('published_listings_with_rating')
     .select(
-      'id, title, price_cents, location, images, created_at',
+      'id, title, price_cents, location, images, created_at, avg_rating, review_count',
       { count: 'exact' },
     )
     .eq('status', 'published')
@@ -114,9 +112,7 @@ export async function searchListings(
       query = query.order('price_cents', { ascending: false })
       break
     case 'rating_desc':
-      // TODO: Use avg_rating from view once available
-      // For now, fall through to newest (no real ratings yet)
-      query = query.order('created_at', { ascending: false })
+      query = query.order('avg_rating', { ascending: false })
       break
     case 'newest':
     default:
@@ -153,9 +149,8 @@ export async function searchListings(
         price_cents: row.price_cents,
         location: row.location,
         images: row.images || [],
-        // TODO: Use real avg_rating and review_count from view
-        avg_rating: 0,
-        review_count: 0,
+        avg_rating: Number(row.avg_rating ?? 0),
+        review_count: Number(row.review_count ?? 0),
       })
     }
   }
@@ -260,6 +255,24 @@ export async function getListingDetail(
     // Return listing without slots on error (graceful degradation)
   }
 
+  // Rating aggregate comes from the published_listings_with_rating view.
+  // Only published listings appear in the view — draft/archived owner previews
+  // keep 0 ratings (the view filters on status='published').
+  let listingAvgRating = 0
+  let listingReviewCount = 0
+  if (listing.status === 'published') {
+    const { data: ratingRow, error: ratingError } = await supabase
+      .from('published_listings_with_rating')
+      .select('avg_rating, review_count')
+      .eq('id', listingId)
+      .single()
+
+    if (!ratingError && ratingRow) {
+      listingAvgRating = Number(ratingRow.avg_rating ?? 0)
+      listingReviewCount = Number(ratingRow.review_count ?? 0)
+    }
+  }
+
   return {
     id: listing.id,
     title: listing.title,
@@ -282,8 +295,8 @@ export async function getListingDetail(
       review_count: 0,
     },
     available_slots: slots || [],
-    avg_rating: 0,
-    review_count: 0,
+    avg_rating: listingAvgRating,
+    review_count: listingReviewCount,
   }
 }
 
@@ -300,8 +313,8 @@ export async function getSimilarListings(
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('listings')
-    .select('id, title, price_cents, location, images, created_at')
+    .from('published_listings_with_rating')
+    .select('id, title, price_cents, location, images, created_at, avg_rating, review_count')
     .eq('status', 'published')
     .eq('category', category)
     .neq('id', excludeId)
@@ -322,7 +335,7 @@ export async function getSimilarListings(
     price_cents: row.price_cents,
     location: row.location,
     images: row.images || [],
-    avg_rating: 0,
-    review_count: 0,
+    avg_rating: Number(row.avg_rating ?? 0),
+    review_count: Number(row.review_count ?? 0),
   }))
 }
