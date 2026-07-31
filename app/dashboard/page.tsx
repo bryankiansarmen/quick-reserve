@@ -159,6 +159,13 @@ export default async function DashboardPage() {
                 Incoming Bookings
               </Link>
               <Link
+                id="seller-earnings-link"
+                href="/dashboard/earnings"
+                className="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-white px-4 py-2 text-sm font-medium text-indigo-700 shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/30 transition-colors"
+              >
+                Earnings
+              </Link>
+              <Link
                 href="/dashboard/listings/new"
                 className="inline-flex items-center gap-2 rounded-lg border border-indigo-300 bg-white px-4 py-2 text-sm font-medium text-indigo-700 shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/30 transition-colors"
               >

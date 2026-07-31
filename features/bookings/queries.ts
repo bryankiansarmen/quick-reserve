@@ -1,5 +1,5 @@
 import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
-import { Booking, CheckoutBooking, BuyerBookingListItem, BuyerBookingsList, SellerBookingListItem, SellerBookingsList } from './types'
+import { Booking, CheckoutBooking, BuyerBookingListItem, BuyerBookingsList, SellerBookingListItem, SellerBookingsList, SellerEarnings, SellerEarningsBooking } from './types'
 
 export interface VerifiedSlot {
   id: string
@@ -350,4 +350,96 @@ export async function getSellerBookings(
   )
 
   return { pending, other }
+}
+
+/**
+ * Fetch the earnings summary and history for the authenticated seller.
+ *
+ * Only `confirmed` and `completed` bookings count toward earnings (a
+ * `pending` booking hasn't been paid, and a `cancelled` one never will be).
+ * RLS policy "sellers read bookings on own listings" enforces the scoping
+ * automatically on the session-scoped client — bookings on listings the
+ * caller does not own never appear here, so no explicit `seller_id` filter
+ * is needed in app code.
+ *
+ * The `total_cents` sum is computed over exactly the same rows shown in the
+ * returned list, so the headline number and the history always agree.
+ *
+ * A query failure resolves to zero earnings (with a logged error) so the
+ * page renders its empty state rather than crashing on a transient DB hiccup.
+ */
+export async function getSellerEarnings(
+  supabase: SupabaseClient,
+): Promise<SellerEarnings> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select(
+      `
+      id,
+      status,
+      amount_cents,
+      created_at,
+      slot:availability_slots(
+        start_time,
+        end_time
+      ),
+      listing:listings(
+        id,
+        title,
+        location,
+        images
+      ),
+      buyer:profiles(
+        full_name
+      )
+    `,
+    )
+    .in('status', ['confirmed', 'completed'])
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('[getSellerEarnings] Error fetching seller earnings:', {
+      code: error.code,
+      message: error.message,
+      ...(process.env.NODE_ENV === 'development' && { details: error.details }),
+    })
+    return { total_cents: 0, bookings: [] }
+  }
+
+  const bookings: SellerEarningsBooking[] = []
+  let total_cents = 0
+
+  for (const row of data || []) {
+    const slot = Array.isArray(row.slot) ? row.slot[0] : row.slot
+    const listing = Array.isArray(row.listing) ? row.listing[0] : row.listing
+    const buyer = Array.isArray(row.buyer) ? row.buyer[0] : row.buyer
+    if (!slot || !listing || !buyer) continue
+
+    total_cents += row.amount_cents
+
+    bookings.push({
+      id: row.id,
+      status: row.status,
+      amount_cents: row.amount_cents,
+      created_at: row.created_at,
+      listing: {
+        id: listing.id,
+        title: listing.title,
+        location: listing.location,
+        image:
+          Array.isArray(listing.images) && listing.images.length > 0
+            ? listing.images[0]
+            : null,
+      },
+      slot: {
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+      },
+      buyer: {
+        full_name: buyer.full_name,
+      },
+    })
+  }
+
+  return { total_cents, bookings }
 }

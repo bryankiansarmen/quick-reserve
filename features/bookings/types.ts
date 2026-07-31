@@ -109,6 +109,33 @@ export interface SellerBookingsList {
   other: SellerBookingListItem[]
 }
 
+export type SellerEarningBookingStatus = 'confirmed' | 'completed'
+
+export interface SellerEarningsBooking {
+  id: string
+  status: SellerEarningBookingStatus
+  amount_cents: number
+  created_at: string
+  listing: {
+    id: string
+    title: string
+    location: string
+    image: string | null
+  }
+  slot: {
+    start_time: string
+    end_time: string
+  }
+  buyer: {
+    full_name: string
+  }
+}
+
+export interface SellerEarnings {
+  total_cents: number
+  bookings: SellerEarningsBooking[]
+}
+
 export type UpdateBookingAction = 'accept' | 'decline' | 'cancel'
 
 export interface UpdateBookingRequest {
