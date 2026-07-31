@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { isAllowedImageSrc } from '@/lib/utils/image'
 
 interface SellerInfoCardProps {
   seller: {
@@ -41,7 +42,7 @@ export function SellerInfoCard({ seller }: SellerInfoCardProps) {
       {/* Avatar */}
       <div className="flex items-center gap-4">
         <div className="relative w-16 h-16 flex-shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-          {seller.avatar_url ? (
+          {seller.avatar_url && isAllowedImageSrc(seller.avatar_url) ? (
             <Image
               src={seller.avatar_url}
               alt={seller.full_name}

@@ -29,7 +29,7 @@ describe('SellerInfoCard Component', () => {
   it('displays avatar image when provided', () => {
     const sellerWithAvatar = {
       ...mockSeller,
-      avatar_url: 'https://example.com/avatar.jpg',
+      avatar_url: '/avatar.jpg',
     }
 
     render(<SellerInfoCard seller={sellerWithAvatar} />)

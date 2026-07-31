@@ -1,5 +1,5 @@
 import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
-import { Booking } from './types'
+import { Booking, CheckoutBooking } from './types'
 
 export interface VerifiedSlot {
   id: string
@@ -73,4 +73,78 @@ export async function createPendingBooking(
     .single()
 
   return { data: data as Booking | null, error }
+}
+
+/**
+ * Fetch the checkout details for a booking owned by the current user.
+ *
+ * RLS enforces that a buyer can only read their own bookings, so a booking
+ * belonging to another user resolves to null (clean 404 rather than a leak).
+ *
+ * The result is denormalized into a flat CheckoutBooking shape for the
+ * checkout page (order summary + payment intent binding).
+ */
+export async function getCheckoutBooking(
+  supabase: SupabaseClient,
+  bookingId: string,
+): Promise<CheckoutBooking | null> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select(
+      `
+      id,
+      status,
+      stripe_payment_intent_id,
+      amount_cents,
+      created_at,
+      slot:availability_slots(
+        id,
+        start_time,
+        end_time
+      ),
+      listing:listings(
+        id,
+        title,
+        images,
+        seller:profiles(
+          full_name
+        )
+      )
+    `,
+    )
+    .eq('id', bookingId)
+    .single()
+
+  if (error || !data) return null
+
+  const slot = Array.isArray(data.slot) ? data.slot[0] : data.slot
+  const listing = Array.isArray(data.listing) ? data.listing[0] : data.listing
+  const seller = Array.isArray(listing?.seller) ? listing.seller[0] : listing?.seller
+
+  if (!slot || !listing || !seller) return null
+
+  return {
+    booking: {
+      id: data.id,
+      status: data.status,
+      stripe_payment_intent_id: data.stripe_payment_intent_id,
+      amount_cents: data.amount_cents,
+      created_at: data.created_at,
+    },
+    listing: {
+      id: listing.id,
+      title: listing.title,
+      image: Array.isArray(listing.images) && listing.images.length > 0
+        ? listing.images[0]
+        : null,
+    },
+    slot: {
+      id: slot.id,
+      start_time: slot.start_time,
+      end_time: slot.end_time,
+    },
+    seller: {
+      full_name: seller.full_name,
+    },
+  }
 }

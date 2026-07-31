@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
+import { filterAllowedImages } from '@/lib/utils/image'
 
 interface ImageGalleryProps {
   images: string[]
@@ -27,7 +28,8 @@ interface ImageGalleryProps {
  */
 export function ImageGallery({ images, title }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const displayImages = images.length > 0 ? images : ['/placeholder-listing.svg']
+  const safeImages = filterAllowedImages(images)
+  const displayImages = safeImages.length > 0 ? safeImages : ['/placeholder-listing.svg']
   const showThumbnails = displayImages.length > 1
 
   // Navigate to specific image

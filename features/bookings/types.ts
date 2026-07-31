@@ -33,3 +33,30 @@ export interface BookingErrorResponse {
   code: BookingErrorCode
   message: string
 }
+
+export interface CheckoutBooking {
+  booking: {
+    id: string
+    status: BookingStatus
+    stripe_payment_intent_id: string | null
+    amount_cents: number
+    created_at: string
+  }
+  listing: {
+    id: string
+    title: string
+    image: string | null
+  }
+  slot: {
+    id: string
+    start_time: string
+    end_time: string
+  }
+  seller: {
+    full_name: string
+  }
+}
+
+export interface CheckoutPageProps {
+  bookingId: string
+}

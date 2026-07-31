@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { getStripe } from '@/lib/stripe/server'
 import { createBookingSchema } from '@/features/bookings/validation'
 import {
   verifySlotAvailability,
   createPendingBooking,
 } from '@/features/bookings/queries'
 import type { CreateBookingResponse, BookingErrorResponse } from '@/features/bookings/types'
-
-function getStripe(): Stripe {
-  const key = process.env.STRIPE_SECRET_KEY
-  if (!key) {
-    throw new Error('STRIPE_SECRET_KEY is not configured')
-  }
-  return new Stripe(key)
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,6 +26,19 @@ export async function POST(request: NextRequest) {
           } satisfies BookingErrorResponse,
         },
         { status: 401 },
+      )
+    }
+
+    const stripe = getStripe()
+    if (!stripe) {
+      return NextResponse.json(
+        {
+          error: {
+            code: 'INTERNAL_ERROR',
+            message: 'Payments are not configured. Please try again later.',
+          } satisfies BookingErrorResponse,
+        },
+        { status: 500 },
       )
     }
 
@@ -91,7 +96,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const paymentIntent = await getStripe().paymentIntents.create({
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: slot.listing_price_cents,
       currency: 'usd',
       metadata: {
@@ -119,7 +124,7 @@ export async function POST(request: NextRequest) {
 
     if (bookingError) {
       if (paymentIntent.id) {
-        await getStripe().paymentIntents
+        await stripe.paymentIntents
           .cancel(paymentIntent.id)
           .catch((cancelErr: unknown) => {
             console.error(

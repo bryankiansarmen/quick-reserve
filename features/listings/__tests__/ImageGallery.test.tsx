@@ -5,10 +5,10 @@ import { ImageGallery } from '../components/ImageGallery'
 
 describe('ImageGallery Component', () => {
   const mockImages = [
-    'image1.jpg',
-    'image2.jpg',
-    'image3.jpg',
-    'image4.jpg',
+    '/image1.jpg',
+    '/image2.jpg',
+    '/image3.jpg',
+    '/image4.jpg',
   ]
 
   it('renders hero image with first image as default', () => {
@@ -39,7 +39,7 @@ describe('ImageGallery Component', () => {
   })
 
   it('hides thumbnails and counter for single image', () => {
-    render(<ImageGallery images={['image1.jpg']} title="Test Studio" />)
+    render(<ImageGallery images={['/image1.jpg']} title="Test Studio" />)
 
     const counter = screen.queryByText(/\d+ \/ \d+/)
     const thumbnails = screen.queryAllByRole('button', {
@@ -190,7 +190,7 @@ describe('ImageGallery Component', () => {
   })
 
   it('does not show hint for single image', () => {
-    render(<ImageGallery images={['image1.jpg']} title="Test Studio" />)
+    render(<ImageGallery images={['/image1.jpg']} title="Test Studio" />)
 
     const hint = screen.queryByText(/Use arrow keys or click thumbnails/i)
     expect(hint).not.toBeInTheDocument()
@@ -221,10 +221,10 @@ describe('ImageGallery Component', () => {
 
 describe('ImageGallery Component', () => {
   const mockImages = [
-    'image1.jpg',
-    'image2.jpg',
-    'image3.jpg',
-    'image4.jpg',
+    '/image1.jpg',
+    '/image2.jpg',
+    '/image3.jpg',
+    '/image4.jpg',
   ]
 
   it('renders hero image with first image as default', () => {
@@ -255,7 +255,7 @@ describe('ImageGallery Component', () => {
   })
 
   it('hides thumbnails and counter for single image', () => {
-    render(<ImageGallery images={['image1.jpg']} title="Test Studio" />)
+    render(<ImageGallery images={['/image1.jpg']} title="Test Studio" />)
 
     const counter = screen.queryByText(/\d+ \/ \d+/)
     const thumbnails = screen.queryAllByRole('button', {
@@ -406,7 +406,7 @@ describe('ImageGallery Component', () => {
   })
 
   it('does not show hint for single image', () => {
-    render(<ImageGallery images={['image1.jpg']} title="Test Studio" />)
+    render(<ImageGallery images={['/image1.jpg']} title="Test Studio" />)
 
     const hint = screen.queryByText(/Use arrow keys or click thumbnails/i)
     expect(hint).not.toBeInTheDocument()

@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatPriceShort } from '@/lib/utils/currency'
+import { getFirstAllowedImage } from '@/lib/utils/image'
 import type { ListingSearchResult } from '../types'
 
 interface ListingCardProps {
@@ -24,7 +25,7 @@ interface ListingCardProps {
  * - Listing detail page
  */
 export function ListingCard({ listing }: ListingCardProps) {
-  const displayImage = listing.images[0] || '/placeholder-listing.svg'
+  const displayImage = getFirstAllowedImage(listing.images)
 
   return (
     <Link

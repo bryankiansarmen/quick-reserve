@@ -8,7 +8,7 @@ const mockListing: ListingSearchResult = {
   title: 'Modern Photography Studio',
   price_cents: 8500,
   location: 'Downtown Los Angeles',
-  images: ['https://example.com/image1.jpg'],
+  images: ['/image1.jpg'],
   avg_rating: 4.8,
   review_count: 12,
 }
@@ -73,8 +73,8 @@ describe('ListingCard', () => {
     const multiImageListing: ListingSearchResult = {
       ...mockListing,
       images: [
-        'https://example.com/image1.jpg',
-        'https://example.com/image2.jpg',
+        '/image1.jpg',
+        '/image2.jpg',
       ],
     }
 

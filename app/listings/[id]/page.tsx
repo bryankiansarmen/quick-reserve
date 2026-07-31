@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { getListingDetail, getSimilarListings } from '@/features/listings/queries'
 import { createClient } from '@/lib/supabase/server'
 import { ImageGallery } from '@/features/listings/components/ImageGallery'
-import { AvailabilityCalendar } from '@/features/listings/components/AvailabilityCalendar'
+import { BookingSection } from '@/features/listings/components/BookingSection'
 import { SellerInfoCard } from '@/features/listings/components/SellerInfoCard'
 import { ListingCard } from '@/features/listings/components/ListingCard'
 import { CATEGORY_LABELS } from '@/lib/constants/categories'
@@ -187,10 +187,15 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
               </div>
             )}
 
-            {/* Availability Calendar */}
+            {/* Availability + Booking */}
             <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
               <Suspense fallback={<AvailabilityCalendarSkeleton />}>
-                <AvailabilityCalendar slots={listing.available_slots} />
+                <BookingSection
+                  listingId={listing.id}
+                  bookingMode={listing.booking_mode}
+                  slots={listing.available_slots}
+                  isAuthenticated={Boolean(user)}
+                />
               </Suspense>
             </div>
           </div>
@@ -201,22 +206,6 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
               <SellerInfoCard seller={listing.seller} />
             </Suspense>
           </div>
-        </div>
-
-        {/* Call-to-Action: Book Now Button */}
-        <div className="mb-12 text-center">
-          <button
-            disabled
-            className="px-8 py-3 bg-primary text-white font-semibold rounded-lg disabled:opacity-75 disabled:cursor-not-allowed transition-opacity group relative inline-block"
-            title="Booking will be available soon"
-          >
-            Book Now
-
-            {/* Tooltip */}
-            <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 text-sm text-white bg-neutral-900 dark:bg-neutral-700 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-              Booking available soon
-            </span>
-          </button>
         </div>
 
         {/* You May Also Like Section */}
