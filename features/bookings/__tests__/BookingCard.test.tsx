@@ -11,6 +11,7 @@ function makeBooking(
     status: 'pending',
     amount_cents: 8500,
     created_at: '2026-07-20T12:00:00Z',
+    has_review: false,
     listing: {
       id: '550e8400-e29b-41d4-a716-446655440001',
       title: 'Sunlit Photography Studio',
@@ -85,5 +86,29 @@ describe('BookingCard Component', () => {
 
     expect(screen.queryByRole('link', { name: 'Complete payment' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'View confirmation' })).not.toBeInTheDocument()
+  })
+
+  it('shows a "Leave review" button for a completed booking with no review', () => {
+    render(<BookingCard booking={makeBooking({ status: 'completed', has_review: false })} />)
+
+    expect(
+      screen.getByRole('button', { name: 'Leave review' }),
+    ).toBeInTheDocument()
+  })
+
+  it('does not show a "Leave review" button once a review already exists', () => {
+    render(<BookingCard booking={makeBooking({ status: 'completed', has_review: true })} />)
+
+    expect(
+      screen.queryByRole('button', { name: 'Leave review' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('does not show a "Leave review" button for non-completed bookings', () => {
+    render(<BookingCard booking={makeBooking({ status: 'confirmed', has_review: false })} />)
+
+    expect(
+      screen.queryByRole('button', { name: 'Leave review' }),
+    ).not.toBeInTheDocument()
   })
 })

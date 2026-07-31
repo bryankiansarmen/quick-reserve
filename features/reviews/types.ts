@@ -12,3 +12,22 @@ export interface CreateReviewRequest {
   rating: number
   comment?: string
 }
+
+export type ReviewErrorCode =
+  | 'UNAUTHENTICATED'
+  | 'FORBIDDEN'
+  | 'NOT_FOUND'
+  | 'VALIDATION_ERROR'
+  | 'BOOKING_NOT_COMPLETED'
+  | 'REVIEW_ALREADY_EXISTS'
+  | 'INTERNAL_ERROR'
+
+export interface ReviewErrorResponse {
+  code: ReviewErrorCode
+  message: string
+  details?: Record<string, string[]>
+}
+
+export interface CreateReviewResponse {
+  data: Review
+}

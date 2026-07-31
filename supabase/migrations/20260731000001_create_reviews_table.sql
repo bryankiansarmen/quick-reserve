@@ -48,8 +48,7 @@ create policy "reviews are publicly readable"
   using (true);
 
 -- Only the buyer of a completed booking may create a review for it, and only
--- as themselves. Combined with the unique constraint on booking_id, this
--- enforces BR-2: a review can only be created for a status='completed'
+-- as themselves. Combined with the unique constraint on booking_id, a review can only be created for a status='completed'
 -- booking, at most one review per booking.
 create policy "buyers review own completed bookings"
   on public.reviews for insert

@@ -278,7 +278,7 @@ describe('reviews table — RLS policies for INSERT', () => {
     expect(error!.message).not.toBeNull()
   })
 
-  it('duplicate review on the same booking fails (unique constraint, BR-2)', async () => {
+  it('duplicate review on the same booking fails (unique constraint)', async () => {
     const { buyerClient, bookingId } = await completedBookingFixture('duplicate')
     const buyer = (await buyerClient.auth.getUser()).data.user!
 

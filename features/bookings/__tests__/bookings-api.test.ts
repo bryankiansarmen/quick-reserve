@@ -303,7 +303,7 @@ describe('POST /api/bookings - HTTP endpoint', () => {
     session: { access_token: string; refresh_token: string },
     body: Record<string, unknown>,
   ) {
-    const cookieName = 'sb-127.0.0.1-auth-token'
+    const cookieName = 'sb-127-auth-token'
     const cookieValue = JSON.stringify({
       access_token: session.access_token,
       refresh_token: session.refresh_token,

@@ -183,7 +183,8 @@ export async function getBuyerBookings(
         title,
         location,
         images
-      )
+      ),
+      reviews(id)
     `,
     )
     .order('created_at', { ascending: false })
@@ -211,6 +212,11 @@ export async function getBuyerBookings(
       status: row.status,
       amount_cents: row.amount_cents,
       created_at: row.created_at,
+      // reviews.booking_id is UNIQUE, so PostgREST embeds a single object
+      // (one-to-one) rather than an array. Handle both shapes defensively.
+      has_review: Array.isArray(row.reviews)
+        ? row.reviews.length > 0
+        : Boolean(row.reviews),
       listing: {
         id: listing.id,
         title: listing.title,

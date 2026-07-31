@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { formatPrice } from '@/lib/utils/currency'
 import { formatAvailabilityDate, formatTimeRange } from '@/lib/utils/time'
 import { isAllowedImageSrc } from '@/lib/utils/image'
+import { ReviewButton } from '@/features/reviews/components/ReviewButton'
 import type { BuyerBookingListItem } from '../types'
 
 interface BookingCardProps {
@@ -108,7 +109,12 @@ export function BookingCard({ booking }: BookingCardProps) {
             <span className="text-lg font-semibold text-slate-900 dark:text-white">
               {formatPrice(booking.amount_cents)}
             </span>
-            {cta}
+            <div className="flex flex-wrap items-center gap-2">
+              {cta}
+              {status === 'completed' && !booking.has_review && (
+                <ReviewButton bookingId={booking.id} listingTitle={listing.title} />
+              )}
+            </div>
           </div>
         </div>
       </div>

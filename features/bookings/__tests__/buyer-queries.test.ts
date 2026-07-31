@@ -289,4 +289,54 @@ describe('getBuyerBookings', () => {
     expect(item!.slot.end_time).toBe(slot.end_time)
     expect(item!.created_at).toBeTruthy()
   })
+
+  it('flags a completed booking with no review as has_review=false', async () => {
+    const { client: sellerClient, user: seller } = await signUpSeller('noreview')
+    const { client: buyerClient, user: buyer } = await signUpBuyer('noreview')
+    createdUserIds.push(seller.id, buyer.id)
+
+    const listing = await createListing(sellerClient, seller.id)
+    const slot = await createSlot(sellerClient, listing.id, pastTime(1))
+    const booking = await createBooking(buyerClient, {
+      listing_id: listing.id,
+      buyer_id: buyer.id,
+      slot_id: slot.id,
+      status: 'completed',
+    })
+
+    const result = await getBuyerBookings(buyerClient)
+
+    const item = result.past.find((b) => b.id === booking.id)
+    expect(item).toBeDefined()
+    expect(item!.has_review).toBe(false)
+  })
+
+  it('flags a completed booking with an existing review as has_review=true', async () => {
+    const { client: sellerClient, user: seller } = await signUpSeller('hasreview')
+    const { client: buyerClient, user: buyer } = await signUpBuyer('hasreview')
+    createdUserIds.push(seller.id, buyer.id)
+
+    const listing = await createListing(sellerClient, seller.id)
+    const slot = await createSlot(sellerClient, listing.id, pastTime(1))
+    const booking = await createBooking(buyerClient, {
+      listing_id: listing.id,
+      buyer_id: buyer.id,
+      slot_id: slot.id,
+      status: 'completed',
+    })
+
+    const { error: reviewError } = await buyerClient.from('reviews').insert({
+      booking_id: booking.id,
+      reviewer_id: buyer.id,
+      rating: 5,
+      comment: 'Great space!',
+    })
+    expect(reviewError).toBeNull()
+
+    const result = await getBuyerBookings(buyerClient)
+
+    const item = result.past.find((b) => b.id === booking.id)
+    expect(item).toBeDefined()
+    expect(item!.has_review).toBe(true)
+  })
 })

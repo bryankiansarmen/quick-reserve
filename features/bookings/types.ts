@@ -66,6 +66,7 @@ export interface BuyerBookingListItem {
   status: BookingStatus
   amount_cents: number
   created_at: string
+  has_review: boolean
   listing: {
     id: string
     title: string
