@@ -74,7 +74,7 @@ export function ConfirmDialog({
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               isDestructive
                 ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                : 'bg-primary hover:bg-primary-dark text-white'
             } ${confirmDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {confirmLabel}

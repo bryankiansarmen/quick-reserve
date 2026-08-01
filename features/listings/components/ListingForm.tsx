@@ -36,11 +36,11 @@ const categoryLabels: Record<string, string> = {
 const inputBase =
   'mt-1 block w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 ' +
   'placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 ' +
-  'dark:bg-slate-800 dark:text-white dark:placeholder-slate-500'
+  'dark:bg-slate-900 dark:text-white dark:placeholder-slate-500'
 
 const inputNormal =
   inputBase +
-  ' border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700'
+  ' border-slate-300 focus:border-primary focus:ring-primary dark:border-slate-800'
 
 const inputError =
   inputBase +
@@ -204,7 +204,7 @@ export function ListingForm({ listingId, initialData }: ListingFormProps) {
           {BOOKING_MODES.map((mode) => (
             <label
               key={mode}
-              className="flex flex-1 cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-800 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-950/30"
+              className="flex flex-1 cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-primary/40 dark:border-slate-800 dark:bg-slate-900 has-[:checked]:border-primary has-[:checked]:bg-primary/10 dark:has-[:checked]:bg-primary/20"
             >
               <input
                 type="radio"
@@ -215,7 +215,7 @@ export function ListingForm({ listingId, initialData }: ListingFormProps) {
                     ? initialData.booking_mode === mode
                     : mode === 'request'
                 }
-                className="mt-0.5 h-4 w-4 shrink-0 accent-indigo-600"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
                 <span className="block text-sm font-medium text-slate-900 dark:text-white capitalize">
@@ -234,10 +234,10 @@ export function ListingForm({ listingId, initialData }: ListingFormProps) {
       </fieldset>
 
       {/* Submit */}
-      <div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-6 dark:border-slate-700">
+      <div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-6 dark:border-slate-800">
         <a
           href="/dashboard/listings"
-          className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition-colors"
+          className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
         >
           Cancel
         </a>
@@ -245,7 +245,7 @@ export function ListingForm({ listingId, initialData }: ListingFormProps) {
           id="listing-form-submit-btn"
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isPending && (
             <svg

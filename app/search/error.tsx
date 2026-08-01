@@ -16,8 +16,8 @@ export default function SearchError({
   }, [error])
 
   return (
-    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 p-8 text-center shadow-sm">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center shadow-sm">
         {/* Error Icon */}
         <div className="mb-4">
           <svg
@@ -37,11 +37,11 @@ export default function SearchError({
         </div>
 
         {/* Error Message */}
-        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-2">
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-2">
           Something went wrong
         </h2>
 
-        <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
           We couldn&apos;t load the search results. Please try again.
         </p>
 
@@ -56,7 +56,7 @@ export default function SearchError({
 
           <Link
             href="/"
-            className="px-6 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-neutral-50 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors font-medium"
+            className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-50 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium"
           >
             Go Home
           </Link>
@@ -65,7 +65,7 @@ export default function SearchError({
         {/* Error Details (dev only) */}
         {process.env.NODE_ENV === 'development' && error.message && (
           <details className="mt-6 text-left">
-            <summary className="text-sm text-neutral-500 cursor-pointer hover:text-neutral-700 dark:hover:text-neutral-300 font-medium">
+            <summary className="text-sm text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 font-medium">
               Error details (development only)
             </summary>
             <pre className="mt-2 text-xs text-danger bg-danger/10 p-3 rounded overflow-auto max-h-40 whitespace-pre-wrap break-words font-mono">

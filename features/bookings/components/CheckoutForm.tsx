@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js'
 import { formatPrice } from '@/lib/utils/currency'
+import { Button } from '@/components/ui/Button'
 
 interface CheckoutFormProps {
   bookingId: string
@@ -72,18 +73,17 @@ export function CheckoutForm({ bookingId, amountCents }: CheckoutFormProps) {
         </div>
       )}
 
-      <button
+      <Button
         type="submit"
-        disabled={state.status === 'processing' || !stripe || !elements}
-        className="w-full px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-        aria-busy={state.status === 'processing'}
+        disabled={!stripe || !elements}
+        loading={state.status === 'processing'}
+        size="lg"
+        fullWidth
       >
-        {state.status === 'processing'
-          ? 'Processing payment…'
-          : `Pay ${formatPrice(amountCents)}`}
-      </button>
+        Pay {formatPrice(amountCents)}
+      </Button>
 
-      <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+      <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
         Payments are processed securely by Stripe. Your card details never touch our
         servers.
       </p>

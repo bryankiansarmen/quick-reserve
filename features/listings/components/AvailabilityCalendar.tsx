@@ -33,8 +33,8 @@ export function AvailabilityCalendar({
 }: AvailabilityCalendarProps) {
   if (!slots || slots.length === 0) {
     return (
-      <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 p-8 text-center">
-        <p className="text-neutral-600 dark:text-neutral-400">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-8 text-center">
+        <p className="text-slate-600 dark:text-slate-400">
           {totalSlots > 0
             ? 'All upcoming slots for the next 30 days are currently booked. Check back soon!'
             : 'No upcoming availability for the next 30 days'}
@@ -47,30 +47,32 @@ export function AvailabilityCalendar({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+      <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
         Availability
       </h2>
 
       <div className="space-y-4">
         {Array.from(slotsByDate.entries()).map(([dateStr, dateSlots]) => (
-          <div key={dateStr} className="rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+          <div key={dateStr} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             {/* Date header */}
-            <div className="bg-neutral-50 dark:bg-neutral-800 px-4 py-3 border-b border-neutral-200 dark:border-neutral-700">
-              <h3 className="font-semibold text-neutral-900 dark:text-neutral-50">
+            <div className="bg-slate-50 dark:bg-slate-800 px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+              <h3 className="font-semibold text-slate-900 dark:text-white">
                 {formatAvailabilityDate(dateStr, 'long')}
               </h3>
             </div>
 
             {/* Time slots for this date */}
-            <div className="divide-y divide-neutral-200 dark:divide-neutral-700">
-              {dateSlots.map(slot => {
+            <div className="divide-y divide-slate-200 dark:divide-slate-800">
+              {dateSlots.map((slot, index) => {
                 const isSelected = selectedSlotId === slot.id
                 const isSelectable = !slot.is_booked && onSlotSelect
+                const isFirstSlot = index === 0
+                const isLastSlot = index === dateSlots.length - 1
 
                 const rowContent = (
                   <>
                     {/* Time range */}
-                    <span className="text-neutral-900 dark:text-neutral-50 font-medium">
+                    <span className="text-slate-900 dark:text-slate-50 font-medium">
                       {formatTimeRange(slot.start_time, slot.end_time)}
                     </span>
 
@@ -78,7 +80,7 @@ export function AvailabilityCalendar({
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         slot.is_booked
-                          ? 'bg-neutral-300 dark:bg-neutral-600 text-neutral-700 dark:text-neutral-200'
+                          ? 'bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-200'
                           : isSelected
                             ? 'bg-primary text-white'
                             : 'bg-success/10 dark:bg-success/20 text-success'
@@ -89,15 +91,21 @@ export function AvailabilityCalendar({
                   </>
                 )
 
-                const rowClassName = `px-4 py-3 flex items-center justify-between ${
+                const rowClassName = `px-4 py-3 flex items-center justify-between transition-colors ${
                   slot.is_booked
-                    ? 'bg-neutral-100 dark:bg-neutral-700 opacity-60'
-                    : isSelected
-                      ? 'bg-primary/10 dark:bg-primary/20'
-                      : 'bg-white dark:bg-neutral-800'
+                    ? 'bg-slate-50 dark:bg-slate-800 opacity-60'
+                    : ''
                 }`
 
                 if (isSelectable) {
+                  // Determine border radius based on position
+                  const getBorderRadius = () => {
+                    if (isFirstSlot && isLastSlot) return '0 0 1rem 1rem' // Only slot
+                    if (isFirstSlot) return '0' // First slot - no radius (header has top radius)
+                    if (isLastSlot) return '0 0 1rem 1rem' // Last slot - bottom radius
+                    return '0' // Middle slots - no radius
+                  }
+
                   return (
                     <button
                       key={slot.id}
@@ -105,9 +113,12 @@ export function AvailabilityCalendar({
                       onClick={() => onSlotSelect(slot.id)}
                       aria-pressed={isSelected}
                       aria-label={`Select ${formatTimeRange(slot.start_time, slot.end_time)}`}
-                      className={`${rowClassName} w-full text-left cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                        isSelected ? 'ring-2 ring-primary ring-inset' : ''
+                      className={`${rowClassName} w-full text-left cursor-pointer transition-all focus:outline-none ${
+                        isSelected 
+                          ? 'bg-primary/10 dark:bg-primary/20 shadow-[inset_0_0_0_2px_rgb(37_99_235)] dark:shadow-[inset_0_0_0_2px_rgb(37_99_235)]' 
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800'
                       }`}
+                      style={isSelected ? { borderRadius: getBorderRadius() } : undefined}
                     >
                       {rowContent}
                     </button>

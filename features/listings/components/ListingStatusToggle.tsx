@@ -52,7 +52,7 @@ export default function ListingStatusToggle({
           <button
             onClick={() => handleStatusChange('published')}
             disabled={isPending}
-            className="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+            className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 transition-colors"
             aria-busy={isPending}
           >
             {isPending ? 'Publishing...' : 'Publish'}
@@ -63,7 +63,7 @@ export default function ListingStatusToggle({
           <button
             onClick={() => setArchiveConfirmOpen(true)}
             disabled={isPending}
-            className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 dark:border-slate-700 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/20 transition-colors"
+            className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 dark:border-slate-800 dark:bg-slate-900 dark:text-red-400 dark:hover:bg-red-950/20 transition-colors"
             aria-busy={isPending}
           >
             {isPending ? 'Archiving...' : 'Archive'}

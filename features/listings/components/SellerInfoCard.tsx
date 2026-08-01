@@ -38,7 +38,7 @@ export function SellerInfoCard({ seller }: SellerInfoCardProps) {
     .slice(0, 2)
 
   return (
-    <aside className="lg:sticky lg:top-4 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6 space-y-4">
+    <aside className="lg:sticky lg:top-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
       {/* Avatar */}
       <div className="flex items-center gap-4">
         <div className="relative w-16 h-16 flex-shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
@@ -57,7 +57,7 @@ export function SellerInfoCard({ seller }: SellerInfoCardProps) {
 
         {/* Name and rating (compact on mobile) */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-neutral-900 dark:text-neutral-50 truncate">
+          <h3 className="font-semibold text-slate-900 dark:text-slate-50 truncate">
             {seller.full_name}
           </h3>
 
@@ -65,10 +65,10 @@ export function SellerInfoCard({ seller }: SellerInfoCardProps) {
           {seller.review_count > 0 && (
             <div className="flex items-center gap-1 mt-1">
               <span className="text-warning text-sm">★</span>
-              <span className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-50">
                 {seller.avg_rating.toFixed(1)}
               </span>
-              <span className="text-xs text-neutral-600 dark:text-neutral-400">
+              <span className="text-xs text-slate-600 dark:text-slate-400">
                 ({seller.review_count})
               </span>
             </div>
@@ -78,8 +78,8 @@ export function SellerInfoCard({ seller }: SellerInfoCardProps) {
 
       {/* Bio */}
       {seller.bio && (
-        <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700">
-          <p className="text-sm text-neutral-700 dark:text-neutral-300 line-clamp-3">
+        <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-3">
             {seller.bio}
           </p>
         </div>
@@ -95,14 +95,14 @@ export function SellerInfoCard({ seller }: SellerInfoCardProps) {
           Contact Seller
 
           {/* Tooltip */}
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-neutral-900 dark:bg-neutral-700 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-slate-900 dark:bg-slate-700 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
             Messaging available in a future release
           </span>
         </button>
       </div>
 
       {/* Trust signals footer */}
-      <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400">
+      <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs text-slate-600 dark:text-slate-400">
         <svg
           className="w-4 h-4 mr-1"
           fill="none"

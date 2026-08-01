@@ -82,14 +82,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Page Header */}
-      <header className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-50">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             Search Venues
           </h1>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+          <p className="mt-2 text-slate-600 dark:text-slate-400">
             Find the perfect space for your next project
           </p>
         </div>
@@ -117,7 +117,7 @@ function SearchPageSkeleton() {
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-pulse">
       {/* Sidebar skeleton */}
       <aside className="lg:col-span-1">
-        <div className="h-96 bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700" />
+        <div className="h-96 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700" />
       </aside>
 
       {/* Results grid skeleton */}
@@ -126,13 +126,13 @@ function SearchPageSkeleton() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700"
+              className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
             >
-              <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700" />
+              <div className="aspect-[4/3] bg-slate-200 dark:bg-slate-700" />
               <div className="p-4 space-y-3">
-                <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4" />
-                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2" />
-                <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4" />
+                <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+                <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
               </div>
             </div>
           ))}

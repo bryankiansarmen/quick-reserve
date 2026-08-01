@@ -31,9 +31,9 @@ export function OrderSummary({
   amountCents,
 }: OrderSummaryProps) {
   return (
-    <aside className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden lg:sticky lg:top-8">
+    <aside className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden lg:sticky lg:top-8">
       {/* Listing image */}
-      <div className="relative aspect-[4/3] bg-neutral-100 dark:bg-neutral-700">
+      <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-700">
         {listing.image && isAllowedImageSrc(listing.image) ? (
           <Image
             src={listing.image}
@@ -44,7 +44,7 @@ export function OrderSummary({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-700 dark:to-neutral-600">
-            <span className="text-4xl font-bold text-neutral-400 dark:text-neutral-300">
+            <span className="text-4xl font-bold text-slate-400 dark:text-slate-300">
               {listing.title.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -53,33 +53,33 @@ export function OrderSummary({
 
       <div className="p-6 space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
             {listing.title}
           </h2>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Hosted by {seller.full_name}
           </p>
         </div>
 
         <dl className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <dt className="text-neutral-600 dark:text-neutral-400">Date</dt>
-            <dd className="font-medium text-neutral-900 dark:text-neutral-50">
+            <dt className="text-slate-600 dark:text-slate-400">Date</dt>
+            <dd className="font-medium text-slate-900 dark:text-slate-50">
               {formatAvailabilityDate(slot.start_time)}
             </dd>
           </div>
           <div className="flex items-center justify-between">
-            <dt className="text-neutral-600 dark:text-neutral-400">Time</dt>
-            <dd className="font-medium text-neutral-900 dark:text-neutral-50">
+            <dt className="text-slate-600 dark:text-slate-400">Time</dt>
+            <dd className="font-medium text-slate-900 dark:text-slate-50">
               {formatSlotTimeRange(slot.start_time, slot.end_time)}
             </dd>
           </div>
         </dl>
 
-        <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4 space-y-2 text-sm">
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-neutral-600 dark:text-neutral-400">Booking total</span>
-            <span className="font-semibold text-neutral-900 dark:text-neutral-50">
+            <span className="text-slate-600 dark:text-slate-400">Booking total</span>
+            <span className="font-semibold text-slate-900 dark:text-slate-50">
               {formatPrice(amountCents)}
             </span>
           </div>

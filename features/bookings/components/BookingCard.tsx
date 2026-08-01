@@ -14,8 +14,8 @@ interface BookingCardProps {
 const statusStyles: Record<BuyerBookingListItem['status'], string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
   confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  cancelled: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
-  completed: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+  cancelled: 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-400',
+  completed: 'bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-400',
 }
 
 /**
@@ -33,14 +33,14 @@ export function BookingCard({ booking }: BookingCardProps) {
     status === 'pending' ? (
       <Link
         href={`/checkout/${booking.id}`}
-        className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
       >
         Complete payment
       </Link>
     ) : status === 'confirmed' || status === 'completed' ? (
       <Link
         href={`/checkout/${booking.id}/success`}
-        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
       >
         View confirmation
       </Link>
@@ -53,7 +53,7 @@ export function BookingCard({ booking }: BookingCardProps) {
     >
       <div className="flex items-start gap-4">
         {/* Thumbnail */}
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800 sm:h-28 sm:w-28">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 sm:h-28 sm:w-28">
           {listing.image && isAllowedImageSrc(listing.image) ? (
             <Image
               src={listing.image}

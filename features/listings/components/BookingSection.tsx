@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AvailabilityCalendar } from './AvailabilityCalendar'
+import { Button } from '@/components/ui/Button'
 import type { AvailabilitySlot } from '../types'
 
 interface BookingSectionProps {
@@ -105,18 +106,18 @@ export function BookingSection({
   return (
     <div className="space-y-6">
       {/* Selection summary + CTA */}
-      <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
               {ctaLabel}
             </h2>
             <p
-              className="mt-1 text-sm text-neutral-600 dark:text-neutral-400"
+              className="mt-1 text-sm text-slate-600 dark:text-slate-400"
               aria-live="polite"
             >
               {selectedSlot ? (
-                <span className="font-medium text-neutral-900 dark:text-neutral-50">
+                <span className="font-medium text-slate-900 dark:text-slate-50">
                   Selected: {formatSlotSummary(selectedSlot)}
                 </span>
               ) : hasAvailableSlots ? (
@@ -127,15 +128,15 @@ export function BookingSection({
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
             onClick={handleBook}
-            disabled={state.status === 'submitting' || !selectedSlotId}
-            className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            aria-busy={state.status === 'submitting'}
+            disabled={!selectedSlotId}
+            loading={state.status === 'submitting'}
+            size="lg"
           >
-            {state.status === 'submitting' ? 'Creating booking…' : ctaLabel}
-          </button>
+            {ctaLabel}
+          </Button>
         </div>
 
         {state.error && (

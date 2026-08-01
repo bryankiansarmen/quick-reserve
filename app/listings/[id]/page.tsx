@@ -8,6 +8,8 @@ import { BookingSection } from '@/features/listings/components/BookingSection'
 import { SellerInfoCard } from '@/features/listings/components/SellerInfoCard'
 import { ListingCard } from '@/features/listings/components/ListingCard'
 import { CATEGORY_LABELS } from '@/lib/constants/categories'
+import { BackButton } from '@/components/ui/BackButton'
+import { Breadcrumb } from '@/components/ui/Breadcrumb'
 
 export const dynamic = 'force-dynamic'
 // Cache published listings for 5 minutes to improve performance
@@ -108,26 +110,36 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
     listing.category
 
   return (
-    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Page Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation */}
+        <BackButton label="Back to Listings" fallbackHref="/search" />
+        <Breadcrumb
+          items={[
+            { label: 'Browse Spaces', href: '/search' },
+            { label: categoryLabel, href: `/search?category=${listing.category}` },
+          ]}
+          currentPage={listing.title}
+        />
+
         {/* Header: Title, Location, Price */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-neutral-900 dark:text-neutral-50">
+              <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
                 {listing.title}
               </h1>
-              <p className="mt-2 text-lg text-neutral-600 dark:text-neutral-400">
+              <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">
                 {listing.location}
               </p>
             </div>
 
             {/* Price Badge */}
             <div className="text-right">
-              <div className="text-3xl font-bold text-primary">
+              <div className="text-3xl font-bold text-slate-900 dark:text-white">
                 ${pricePerHour}
-                <span className="text-lg font-normal text-neutral-600 dark:text-neutral-400 ml-2">
+                <span className="text-lg font-normal text-slate-600 dark:text-slate-400 ml-2">
                   /hour
                 </span>
               </div>
@@ -150,8 +162,8 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
           </div>
 
           {/* Category & Review Preview */}
-          <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-            <span className="inline-block px-3 py-1 rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 font-medium">
+          <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+            <span className="inline-block px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium">
               {categoryLabel}
             </span>
 
@@ -177,18 +189,18 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
 
             {/* Description */}
             {listing.description && (
-              <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
-                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   About this space
                 </h2>
-                <p className="text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap leading-relaxed">
+                <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
                   {listing.description}
                 </p>
               </div>
             )}
 
             {/* Availability + Booking */}
-            <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <Suspense fallback={<AvailabilityCalendarSkeleton />}>
                 <BookingSection
                   listingId={listing.id}
@@ -211,7 +223,7 @@ export default async function ListingDetailPage({ params }: ListingDetailPagePro
         {/* You May Also Like Section */}
         {similarListings.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50 mb-6">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
               You may also like
             </h2>
 

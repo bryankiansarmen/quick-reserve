@@ -23,8 +23,8 @@ export function CheckoutPageClient({
   amountCents,
 }: CheckoutPageClientProps) {
   return (
-    <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6 sm:p-8">
-      <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-6">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8">
+      <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-6">
         Payment details
       </h2>
       <Elements

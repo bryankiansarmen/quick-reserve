@@ -71,7 +71,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
     <div className="w-full space-y-4">
       {/* Hero Image */}
       <div
-        className="relative aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 rounded-lg overflow-hidden"
+        className="relative aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/9] bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden"
         role="img"
         aria-label={`${title} - image ${activeIndex + 1} of ${displayImages.length}`}
       >
@@ -97,12 +97,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
             <button
               onClick={() => goToImage(activeIndex - 1)}
               disabled={activeIndex === 0}
-              className="absolute left-4 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/80 dark:bg-neutral-800/80 hover:bg-white dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
+              className="absolute left-4 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
               aria-label="Previous image"
               title="Previous image (or press Left Arrow)"
             >
               <svg
-                className="w-6 h-6 text-neutral-900 dark:text-neutral-50"
+                className="w-6 h-6 text-slate-900 dark:text-slate-50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -119,12 +119,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
             <button
               onClick={() => goToImage(activeIndex + 1)}
               disabled={activeIndex === displayImages.length - 1}
-              className="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/80 dark:bg-neutral-800/80 hover:bg-white dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
+              className="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
               aria-label="Next image"
               title="Next image (or press Right Arrow)"
             >
               <svg
-                className="w-6 h-6 text-neutral-900 dark:text-neutral-50"
+                className="w-6 h-6 text-slate-900 dark:text-slate-50"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -151,7 +151,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
               className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                 index === activeIndex
                   ? 'border-primary ring-2 ring-primary ring-offset-1 dark:ring-offset-neutral-900'
-                  : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
               aria-label={`View image ${index + 1}`}
               aria-current={index === activeIndex ? 'page' : undefined}
@@ -170,7 +170,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
       {/* Keyboard help text (subtle) */}
       {showThumbnails && (
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+        <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
           Use arrow keys or click thumbnails to browse
         </p>
       )}

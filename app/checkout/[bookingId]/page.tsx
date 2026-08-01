@@ -5,6 +5,8 @@ import { getStripe } from '@/lib/stripe/server'
 import { getCheckoutBooking } from '@/features/bookings/queries'
 import { CheckoutPageClient } from '@/features/bookings/components/CheckoutPageClient'
 import { OrderSummary } from '@/features/bookings/components/OrderSummary'
+import { BackButton } from '@/components/ui/BackButton'
+import { Button } from '@/components/ui/Button'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,9 +90,15 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-50 mb-8">
+        <BackButton
+          label="Back to Listing"
+          fallbackHref={`/listings/${listing.id}`}
+          confirmMessage="Are you sure you want to leave checkout? Your booking will not be completed."
+          confirmTitle="Leave checkout?"
+        />
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-8 mt-6">
           Complete your booking
         </h1>
 
@@ -125,18 +133,15 @@ function UnavailableState({
   message?: string
 }) {
   return (
-    <main className="min-h-screen bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center px-4">
-      <div className="max-w-md text-center rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-8">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-900 flex items-center justify-center px-4">
+      <div className="max-w-md text-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-4">
           Booking unavailable
         </h1>
-        <p className="text-neutral-600 dark:text-neutral-400 mb-6">{message}</p>
-        <a
-          href="/search"
-          className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-        >
+        <p className="text-slate-600 dark:text-slate-400 mb-6">{message}</p>
+        <Button asChild href="/search">
           Browse listings
-        </a>
+        </Button>
       </div>
     </main>
   )

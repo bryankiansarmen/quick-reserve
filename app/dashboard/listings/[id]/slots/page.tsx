@@ -65,7 +65,7 @@ export default async function ListingAvailabilityPage({ params }: PageProps) {
             </div>
             <a
               href={`/dashboard/listings/${listing.id}/edit`}
-              className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+              className="text-sm text-primary hover:text-primary-dark dark:text-primary"
             >
               Edit Listing
             </a>

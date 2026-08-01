@@ -22,7 +22,7 @@ export function ListingsGrid({
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <svg
-          className="h-16 w-16 text-neutral-300 dark:text-neutral-600 mb-4"
+          className="h-16 w-16 text-slate-300 dark:text-slate-600 mb-4"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -34,10 +34,10 @@ export function ListingsGrid({
             d="M20 21l-4.35-4.35m0 0A7.5 7.5 0 103.305 3.305a7.5 7.5 0 0010.345 10.345z"
           />
         </svg>
-        <p className="text-lg font-medium text-neutral-900 dark:text-neutral-50 mb-2">
+        <p className="text-lg font-medium text-slate-900 dark:text-slate-50 mb-2">
           No listings match your filters
         </p>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Try adjusting your search criteria or browse all listings
         </p>
       </div>
@@ -47,7 +47,7 @@ export function ListingsGrid({
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           {isLoading ? (
             'Loading...'
           ) : (
@@ -77,7 +77,7 @@ export function ListingsGrid({
           <button
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
-            className="px-4 py-2 border border-neutral-300 rounded-md hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-neutral-600 dark:hover:bg-neutral-800 transition-colors"
+            className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:hover:bg-slate-800 transition-colors"
             aria-label="Previous page"
           >
             Previous
@@ -94,7 +94,7 @@ export function ListingsGrid({
                 return (
                   <span
                     key={`ellipsis-start-${pageNum}`}
-                    className="px-2 text-neutral-500"
+                    className="px-2 text-slate-500"
                     aria-hidden="true"
                   >
                     …
@@ -105,7 +105,7 @@ export function ListingsGrid({
                 return (
                   <span
                     key={`ellipsis-end-${pageNum}`}
-                    className="px-2 text-neutral-500"
+                    className="px-2 text-slate-500"
                     aria-hidden="true"
                   >
                     …
@@ -122,7 +122,7 @@ export function ListingsGrid({
                   className={`px-4 py-2 border rounded-md transition-colors ${
                     pageNum === page
                       ? 'bg-primary text-white border-primary'
-                      : 'border-neutral-300 hover:bg-neutral-50 dark:border-neutral-600 dark:hover:bg-neutral-800'
+                      : 'border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800'
                   }`}
                   aria-label={`Page ${pageNum}`}
                   aria-current={pageNum === page ? 'page' : undefined}
@@ -136,7 +136,7 @@ export function ListingsGrid({
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={page === totalPages}
-            className="px-4 py-2 border border-neutral-300 rounded-md hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-neutral-600 dark:hover:bg-neutral-800 transition-colors"
+            className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:hover:bg-slate-800 transition-colors"
             aria-label="Next page"
           >
             Next
@@ -150,17 +150,17 @@ export function ListingsGrid({
 function SkeletonCard({ ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className="rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700 animate-pulse"
+      className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 animate-pulse"
       {...props}
     >
-      <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700" />
+      <div className="aspect-[4/3] bg-slate-200 dark:bg-slate-700" />
 
       <div className="p-4 space-y-3">
-        <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4" />
+        <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
 
-        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
 
-        <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/4" />
+        <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
       </div>
     </div>
   )

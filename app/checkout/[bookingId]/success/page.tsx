@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCheckoutBooking } from '@/features/bookings/queries'
 import { BookingStatusPoller } from '@/features/bookings/components/BookingStatusPoller'
+import { Button } from '@/components/ui/Button'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,10 +58,10 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
     checkout.booking.status === 'confirmed' || checkout.booking.status === 'completed'
 
   return (
-    <main className="min-h-screen bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-900 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
         {isConfirmed ? (
-          <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-8">
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-success/20 flex items-center justify-center">
               <svg
                 className="w-8 h-8 text-success"
@@ -79,31 +79,36 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
               </svg>
             </div>
 
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50 mb-2">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
               Booking confirmed!
             </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
               You&apos;ll receive a confirmation email shortly.
             </p>
 
-            <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4 mb-6">
-              <p className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mb-6">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Booking reference
               </p>
-              <p className="font-mono font-semibold text-neutral-900 dark:text-neutral-50 mt-1">
+              <p className="font-mono font-semibold text-slate-900 dark:text-slate-50 mt-1">
                 {checkout.booking.id.slice(0, 8)}
               </p>
             </div>
 
-            <Link
-              href="/dashboard"
-              className="inline-block w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              View My Bookings
-            </Link>
+            <div className="space-y-3">
+              <Button asChild size="lg" fullWidth href="/dashboard/bookings">
+                View My Bookings
+              </Button>
+              <Button asChild variant="secondary" size="lg" fullWidth href="/search">
+                Browse More Spaces
+              </Button>
+              <Button asChild variant="ghost" size="lg" fullWidth href={`/listings/${checkout.listing.id}`}>
+                Back to Listing
+              </Button>
+            </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-8">
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning/20 flex items-center justify-center">
               <svg
                 className="w-8 h-8 text-warning animate-pulse"
@@ -128,11 +133,11 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
               We&apos;re finalizing your booking. This usually takes just a moment…
             </p>
 
-            <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4 mb-6">
-              <p className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mb-6">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Booking reference
               </p>
-              <p className="font-mono font-semibold text-neutral-900 dark:text-neutral-50 mt-1">
+              <p className="font-mono font-semibold text-slate-900 dark:text-slate-50 mt-1">
                 {checkout.booking.id.slice(0, 8)}
               </p>
             </div>
@@ -147,18 +152,15 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
 
 function StatusCard({ title, body }: { title: string; body: string }) {
   return (
-    <main className="min-h-screen bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md text-center rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-8">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50 mb-4">
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-900 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md text-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-4">
           {title}
         </h1>
-        <p className="text-neutral-600 dark:text-neutral-400 mb-6">{body}</p>
-        <Link
-          href="/search"
-          className="inline-block w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-        >
+        <p className="text-slate-600 dark:text-slate-400 mb-6">{body}</p>
+        <Button asChild size="lg" fullWidth href="/search">
           Browse listings
-        </Link>
+        </Button>
       </div>
     </main>
   )

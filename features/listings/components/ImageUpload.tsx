@@ -149,8 +149,8 @@ export function ImageUpload({ initialImages = [] }: ImageUploadProps) {
           onDrop={handleDrop}
           className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
             isDragOver
-              ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-400 dark:bg-indigo-950/20'
-              : 'border-slate-300 bg-slate-50/50 hover:border-slate-400 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-slate-600'
+                ? 'border-primary bg-primary/10 dark:border-primary dark:bg-primary/20'
+              : 'border-slate-300 bg-slate-50/50 hover:border-slate-400 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-slate-600'
           }`}
         >
           <input
@@ -182,7 +182,7 @@ export function ImageUpload({ initialImages = [] }: ImageUploadProps) {
 
           <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {uploading ? (
-              <span className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <span className="flex items-center gap-2 text-primary dark:text-primary">
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -191,7 +191,7 @@ export function ImageUpload({ initialImages = [] }: ImageUploadProps) {
               </span>
             ) : (
               <span>
-                Drag and drop photos here, or <span className="text-indigo-600 dark:text-indigo-400 underline">browse</span>
+                Drag and drop photos here, or <span className="text-primary dark:text-primary underline">browse</span>
               </span>
             )}
           </p>
@@ -205,7 +205,7 @@ export function ImageUpload({ initialImages = [] }: ImageUploadProps) {
       {images.length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {images.map((url, idx) => (
-            <div key={`${url}-${idx}`} className="group relative aspect-square rounded-lg border border-slate-200 overflow-hidden bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+            <div key={`${url}-${idx}`} className="group relative aspect-square rounded-2xl border border-slate-200 overflow-hidden bg-slate-100 dark:border-slate-800 dark:bg-slate-900">
               {/* Image thumbnail */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

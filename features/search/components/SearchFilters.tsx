@@ -69,16 +69,16 @@ export function SearchFilters({
   const minDate = new Date().toISOString().split('T')[0]
 
   return (
-    <div className="space-y-6 p-6 bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
+    <div className="space-y-6 p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
           Filters
         </h2>
         <button
           type="button"
           onClick={handleReset}
           disabled={isLoading}
-          className="text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-sm text-slate-700 dark:text-slate-300 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Reset all filters"
         >
           Reset
@@ -88,7 +88,7 @@ export function SearchFilters({
       <div className="space-y-2">
         <label
           htmlFor="category"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
           Category
         </label>
@@ -97,7 +97,7 @@ export function SearchFilters({
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           disabled={isLoading}
-          className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-900 dark:border-slate-600 dark:text-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Filter by category"
         >
           <option value="">All Categories</option>
@@ -112,7 +112,7 @@ export function SearchFilters({
       <div className="space-y-2">
         <label
           htmlFor="location"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
           Location
         </label>
@@ -123,13 +123,13 @@ export function SearchFilters({
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Enter city or area"
           disabled={isLoading}
-          className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-900 dark:border-slate-600 dark:text-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Filter by location"
         />
       </div>
 
       <fieldset className="space-y-2">
-        <legend className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <legend className="block text-sm font-medium text-slate-700 dark:text-slate-300">
           Price Range ($/hour)
         </legend>
         <div className="grid grid-cols-2 gap-2">
@@ -145,7 +145,7 @@ export function SearchFilters({
             min="0"
             step="1"
             disabled={isLoading}
-            className="px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-900 dark:border-slate-600 dark:text-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Minimum price"
           />
           <label htmlFor="maxPrice" className="sr-only">
@@ -160,7 +160,7 @@ export function SearchFilters({
             min="0"
             step="1"
             disabled={isLoading}
-            className="px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-900 dark:border-slate-600 dark:text-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Maximum price"
           />
         </div>
@@ -169,7 +169,7 @@ export function SearchFilters({
       <div className="space-y-2">
         <label
           htmlFor="date"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
           Available Date
         </label>
@@ -180,7 +180,7 @@ export function SearchFilters({
           onChange={(e) => setDate(e.target.value)}
           min={minDate}
           disabled={isLoading}
-          className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-900 dark:border-slate-600 dark:text-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Filter by available date"
         />
       </div>
@@ -188,7 +188,7 @@ export function SearchFilters({
       <div className="space-y-2">
         <label
           htmlFor="sort"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
           Sort By
         </label>
@@ -197,7 +197,7 @@ export function SearchFilters({
           value={sort}
           onChange={(e) => setSort(e.target.value as typeof sort)}
           disabled={isLoading}
-          className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-neutral-900 dark:border-neutral-600 dark:text-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-900 dark:border-slate-600 dark:text-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Sort results by"
         >
           <option value="newest">Newest</option>
