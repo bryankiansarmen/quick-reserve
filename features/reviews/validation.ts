@@ -14,5 +14,3 @@ export const createReviewSchema = z.object({
     .max(MAX_REVIEW_COMMENT_LENGTH, `comment must be ${MAX_REVIEW_COMMENT_LENGTH} characters or fewer`)
     .optional(),
 })
-
-export type CreateReviewInput = z.infer<typeof createReviewSchema>

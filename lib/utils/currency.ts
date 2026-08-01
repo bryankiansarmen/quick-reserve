@@ -26,12 +26,3 @@ export function dollarsToCents(value: string): number | null {
   if (isNaN(parsed) || parsed < 0) return null
   return Math.round(parsed * 100)
 }
-
-/**
- * Converts cents to dollar string for form inputs.
- * Examples: 8500 → "85.00", 8550 → "85.50"
- * Always returns with 2 decimal places.
- */
-export function centsToDollars(cents: number): string {
-  return (cents / 100).toFixed(2)
-}

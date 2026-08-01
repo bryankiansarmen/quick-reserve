@@ -12,11 +12,6 @@ export interface Booking {
   updated_at: string
 }
 
-export interface CreateBookingRequest {
-  listing_id: string
-  slot_id: string
-}
-
 export interface CreateBookingResponse {
   booking_id: string
   client_secret: string
@@ -55,10 +50,6 @@ export interface CheckoutBooking {
   seller: {
     full_name: string
   }
-}
-
-export interface CheckoutPageProps {
-  bookingId: string
 }
 
 export interface BuyerBookingListItem {
@@ -140,10 +131,6 @@ export interface SellerEarnings {
 }
 
 export type UpdateBookingAction = 'accept' | 'decline' | 'cancel'
-
-export interface UpdateBookingRequest {
-  action: UpdateBookingAction
-}
 
 export type UpdateBookingErrorCode =
   | 'UNAUTHENTICATED'

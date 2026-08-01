@@ -7,12 +7,6 @@ export interface Review {
   created_at: string
 }
 
-export interface CreateReviewRequest {
-  booking_id: string
-  rating: number
-  comment?: string
-}
-
 export type ReviewErrorCode =
   | 'UNAUTHENTICATED'
   | 'FORBIDDEN'

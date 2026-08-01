@@ -10,11 +10,6 @@ export interface AvailabilitySlot {
   updated_at: string
 }
 
-export interface SlotFormData {
-  start_time: string
-  end_time: string
-}
-
 export type SlotActionState = {
   errors?: {
     start_time?: string[]

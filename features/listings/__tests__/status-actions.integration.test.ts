@@ -20,7 +20,7 @@ const { mockGetUser, mockSingle, mockSupabase, mockUpdateResponse, mockSlotCount
   const mockSingle = vi.fn()
   
   // This allows us to customize the database resolution for updates/inserts
-  const mockUpdateResponse = {
+  const mockUpdateResponse: { value: { data: unknown; error: { message: string } | null } } = {
     value: { data: null, error: null }
   }
   
@@ -160,7 +160,7 @@ describe('updateListingStatusAction unit tests', () => {
       data: { seller_id: 'seller-abc', images: ['image-url.jpg'], status: 'draft' },
       error: null,
     })
-    mockUpdateResponse.value = { data: null, error: { message: 'Database constraint failed' } as unknown as { message: string } }
+    mockUpdateResponse.value = { data: null, error: { message: 'Database constraint failed' } }
 
     const result = await updateListingStatusAction('listing-123', 'archived')
 

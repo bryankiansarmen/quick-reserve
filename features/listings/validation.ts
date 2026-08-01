@@ -10,7 +10,6 @@ export const LISTING_CATEGORIES = [
 export type ListingCategory = (typeof LISTING_CATEGORIES)[number]
 
 export const BOOKING_MODES = ['instant', 'request'] as const
-export const LISTING_STATUSES = ['draft', 'published', 'archived'] as const
 
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
 export const ALLOWED_IMAGE_TYPES = [
@@ -80,16 +79,6 @@ export const listingSchema = z.object({
 })
 
 export type ListingFormValues = z.infer<typeof listingSchema>
-
-/**
- * Converts a dollar string from the form input (e.g. "85.00" or "85")
- * into an integer number of cents, or returns null if the input is invalid.
- */
-export function dollarsToCents(value: string): number | null {
-  const parsed = parseFloat(value)
-  if (isNaN(parsed) || parsed < 0) return null
-  return Math.round(parsed * 100)
-}
 
 export const PUBLISH_REQUIREMENTS = {
   MIN_IMAGES: 1,
@@ -234,6 +223,4 @@ export const searchQuerySchema = z.object({
     path: ['maxPrice'],
   }
 )
-
-export type SearchQueryParams = z.infer<typeof searchQuerySchema>
 

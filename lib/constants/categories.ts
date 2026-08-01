@@ -21,11 +21,3 @@ export const CATEGORY_OPTIONS = [
   { value: 'meeting-room', label: 'Meeting Room' },
   { value: 'activity-space', label: 'Activity Space' },
 ] as const
-
-/**
- * Get human-readable label for a category.
- * Falls back to the raw category value if not found.
- */
-export function getCategoryLabel(category: ListingCategory | string): string {
-  return CATEGORY_LABELS[category as ListingCategory] || category
-}

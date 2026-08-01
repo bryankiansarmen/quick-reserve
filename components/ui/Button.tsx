@@ -8,6 +8,7 @@ interface BaseButtonProps {
   variant?: ButtonVariant
   size?: ButtonSize
   loading?: boolean
+  loadingLabel?: string
   fullWidth?: boolean
 }
 
@@ -53,6 +54,7 @@ export function Button(props: ButtonProps) {
     variant = 'primary',
     size = 'md',
     loading = false,
+    loadingLabel,
     fullWidth = false,
     className = '',
     children,
@@ -91,7 +93,7 @@ export function Button(props: ButtonProps) {
   }
 
   // Render as button
-  const { disabled, variant: _v, size: _s, loading: _l, fullWidth: _fw, ...buttonProps } = props
+  const { disabled, variant: _v, size: _s, loading: _l, loadingLabel: _ll, fullWidth: _fw, ...buttonProps } = props
   return (
     <button
       className={classes}
@@ -122,7 +124,7 @@ export function Button(props: ButtonProps) {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <span>{children}</span>
+          <span>{loadingLabel ?? children}</span>
         </>
       ) : (
         children

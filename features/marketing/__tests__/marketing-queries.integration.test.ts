@@ -1,20 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { Mock } from 'vitest'
 import { getFeaturedListings, getCategoryCounts } from '../queries'
 
 type MockData = Record<string, unknown>
-interface MockBuilder {
-  [method: string]: MockBuilder | ((resolve: (value: unknown) => void) => Promise<unknown>)
-  then: (resolve: (value: unknown) => void) => Promise<unknown>
+
+const chainMethods = [
+  'select', 'eq', 'neq', 'ilike', 'gte', 'lte', 'in',
+  'order', 'range', 'limit', 'single', 'maybeSingle',
+] as const
+type ChainMethodName = (typeof chainMethods)[number]
+
+type MockBuilder = Record<ChainMethodName, Mock<(...args: unknown[]) => MockBuilder>> & {
+  then?: (resolve: (value: unknown) => void) => Promise<unknown>
 }
 
 function createMockBuilder(): MockBuilder {
-  const builder: MockBuilder = {}
-  const chainMethods = [
-    'select', 'eq', 'neq', 'ilike', 'gte', 'lte', 'in',
-    'order', 'range', 'limit', 'single', 'maybeSingle',
-  ]
+  const builder = {} as MockBuilder
   for (const m of chainMethods) {
-    builder[m] = vi.fn(() => builder)
+    builder[m] = vi.fn(() => builder) as Mock<(...args: unknown[]) => MockBuilder>
   }
   return builder
 }

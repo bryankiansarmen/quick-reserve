@@ -110,7 +110,7 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
       .eq('id', userAId)
       .single()
 
-    expect(updatedProfileA.bio).toBe('Updated bio for User A')
+    expect(updatedProfileA!.bio).toBe('Updated bio for User A')
 
     // User B attempting to update User A's profile affects 0 rows due to RLS
     const { data: userBUpdateResult } = await clientB
@@ -128,6 +128,6 @@ describe('Profiles Table & Signup Trigger Integration Tests', () => {
       .eq('id', userAId)
       .single()
 
-    expect(unchangedProfileA.bio).toBe('Updated bio for User A')
+    expect(unchangedProfileA!.bio).toBe('Updated bio for User A')
   })
 })

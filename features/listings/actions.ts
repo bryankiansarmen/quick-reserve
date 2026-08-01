@@ -3,7 +3,8 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { listingSchema, dollarsToCents, getPublishValidationErrors } from './validation'
+import { dollarsToCents } from '@/lib/utils/currency'
+import { listingSchema, getPublishValidationErrors } from './validation'
 
 export type ListingActionState = {
   errors?: Partial<Record<string, string[]>>

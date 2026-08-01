@@ -77,6 +77,7 @@ export function CheckoutForm({ bookingId, amountCents }: CheckoutFormProps) {
         type="submit"
         disabled={!stripe || !elements}
         loading={state.status === 'processing'}
+        loadingLabel="Processing payment"
         size="lg"
         fullWidth
       >

@@ -67,8 +67,8 @@ describe('ReviewDialog Component', () => {
     await waitFor(() => expect(onSubmitted).toHaveBeenCalledTimes(1))
     expect(fetchMock).toHaveBeenCalledWith('/api/reviews', expect.any(Object))
     const [, init] = fetchMock.mock.calls[0]
-    expect(init.method).toBe('POST')
-    const body = JSON.parse(init.body as string)
+    expect(init!.method).toBe('POST')
+    const body = JSON.parse(init!.body as string)
     expect(body).toEqual({
       booking_id: BOOKING_ID,
       rating: 4,
@@ -85,7 +85,7 @@ describe('ReviewDialog Component', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
     const [, init] = fetchMock.mock.calls[0]
-    const body = JSON.parse(init.body as string)
+    const body = JSON.parse(init!.body as string)
     expect(body).toEqual({ booking_id: BOOKING_ID, rating: 5 })
     expect(body).not.toHaveProperty('comment')
   })

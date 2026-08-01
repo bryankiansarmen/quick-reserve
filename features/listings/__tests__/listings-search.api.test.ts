@@ -53,9 +53,13 @@ interface SearchResponse {
   }
 }
 
+type SearchAPIResult =
+  | (SearchResponse & { error: never })
+  | ({ error: Record<string, unknown> } & { data: never; pagination: never })
+
 async function searchAPI(
   queryParams: Record<string, string | number | undefined>,
-): Promise<{ status: number; data: SearchResponse | { error: Record<string, unknown> } }> {
+): Promise<{ status: number; data: SearchAPIResult }> {
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(queryParams)) {
     if (value !== undefined) {

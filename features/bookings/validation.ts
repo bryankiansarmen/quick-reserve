@@ -8,7 +8,3 @@ export const createBookingSchema = z.object({
 export const updateBookingSchema = z.object({
   action: z.enum(['accept', 'decline', 'cancel']),
 })
-
-export type UpdateBookingInput = z.infer<typeof updateBookingSchema>
-
-export type CreateBookingInput = z.infer<typeof createBookingSchema>
