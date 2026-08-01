@@ -88,6 +88,24 @@ export function SignupForm() {
       <form action={formAction} className="space-y-4">
         <div>
           <label
+            htmlFor="fullName"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
+            Full name
+          </label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            autoComplete="name"
+            required
+            placeholder="Jane Doe"
+            className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+          />
+        </div>
+
+        <div>
+          <label
             htmlFor="email"
             className="block text-sm font-medium text-slate-700 dark:text-slate-300"
           >

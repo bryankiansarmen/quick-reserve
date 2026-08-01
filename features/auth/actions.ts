@@ -50,9 +50,14 @@ export async function signupWithEmail(prevState: unknown, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const confirmPassword = formData.get('confirmPassword') as string
+  const fullName = (formData.get('fullName') as string)?.trim()
 
   if (!email || !password) {
     return { error: 'Email and password are required.' }
+  }
+
+  if (!fullName) {
+    return { error: 'Full name is required.' }
   }
 
   if (password !== confirmPassword) {
@@ -70,6 +75,9 @@ export async function signupWithEmail(prevState: unknown, formData: FormData) {
     email,
     password,
     options: {
+      data: {
+        full_name: fullName,
+      },
       emailRedirectTo: `${origin}/auth/callback`,
     },
   })
