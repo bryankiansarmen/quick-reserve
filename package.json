@@ -7,9 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:integration": "TEST_INTEGRATION=true vitest run"
+    "test": "vitest run --exclude '**/*.integration.test.*' --exclude '**/*.api.test.*'",
+    "test:watch": "vitest --exclude '**/*.integration.test.*' --exclude '**/*.api.test.*'",
+    "test:integration": "cross-env TEST_INTEGRATION=true vitest run integration.test",
+    "test:integration:watch": "cross-env TEST_INTEGRATION=true vitest integration.test",
+    "test:api": "cross-env TEST_INTEGRATION=true vitest run api.test",
+    "test:all": "cross-env TEST_INTEGRATION=true vitest run",
+    "test:coverage": "vitest run --coverage --exclude '**/*.integration.test.*' --exclude '**/*.api.test.*'",
+    "test:coverage:integration": "cross-env TEST_INTEGRATION=true vitest run integration.test --coverage",
+    "test:coverage:all": "cross-env TEST_INTEGRATION=true vitest run --coverage"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^6.8.0",
@@ -31,6 +37,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.10",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "jsdom": "^29.1.1",

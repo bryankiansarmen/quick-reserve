@@ -53,7 +53,7 @@ beforeEach(() => {
   }
 })
 
-describe('Search Page Integration', () => {
+describe('searchListings — mocked Supabase', () => {
   it('returns paginated results with correct structure', async () => {
     mockListingsData = [{ id: '1', title: 'Test', price_cents: 5000, location: 'LA', images: [], created_at: new Date().toISOString() }]
     mockListingsCount = 1

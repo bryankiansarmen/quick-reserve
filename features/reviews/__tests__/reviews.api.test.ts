@@ -2,11 +2,12 @@ import { describe, it, expect, afterAll } from 'vitest'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 /**
- * POST /api/reviews HTTP integration tests.
+ * POST /api/reviews HTTP endpoint tests.
  *
- * Gated behind TEST_INTEGRATION=true + a running dev server on
- * localhost:3000 (same convention as features/bookings/__tests__/bookings-api.test.ts).
- * Skips in the default `npm test` run.
+ * Requires a running dev server on http://localhost:3000 plus a live local
+ * Supabase stack. Gated behind TEST_INTEGRATION=true (same convention as
+ * features/bookings/__tests__/bookings.api.test.ts). Runs via `npm run test:api`.
+ * Excluded from the default `npm test`.
  */
 
 const SUPABASE_URL =

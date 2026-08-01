@@ -5,6 +5,13 @@ import {
   createPendingBooking,
 } from '../queries'
 
+/**
+ * Booking query integration tests against a live Supabase stack.
+ *
+ * Requires a running local Supabase (supabase start). Runs via
+ * `npm run test:integration`. Excluded from the default `npm test`.
+ */
+
 const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321'
 const SUPABASE_ANON_KEY =
@@ -273,124 +280,4 @@ describe('createPendingBooking', () => {
     expect(secondErr).not.toBeNull()
     expect(secondErr!.code).toBe('23505')
   })
-})
-
-describe('POST /api/bookings - HTTP endpoint', () => {
-  const isIntegrationTest = process.env.TEST_INTEGRATION === 'true' && !!process.env.STRIPE_SECRET_KEY
-
-  async function signUpAndGetSession(tag: string) {
-    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        storageKey: `test-http-${tag}-${Date.now()}`,
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    })
-    const email = uniqueEmail(`http-${tag}`)
-    const password = 'Password123!'
-    const { data, error } = await client.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: `HTTP ${tag}` } },
-    })
-    if (error || !data.session || !data.user) {
-      throw new Error(`signUp failed: ${error?.message}`)
-    }
-    return { client, user: data.user, email, password, session: data.session }
-  }
-
-  async function makeApiRequest(
-    session: { access_token: string; refresh_token: string },
-    body: Record<string, unknown>,
-  ) {
-    const cookieName = 'sb-127-auth-token'
-    const cookieValue = JSON.stringify({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
-      expires_in: 3600,
-      expires_at: Math.floor(Date.now() / 1000) + 3600,
-      token_type: 'bearer',
-    })
-
-    const response = await fetch('http://localhost:3000/api/bookings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: `${cookieName}=${encodeURIComponent(cookieValue)}`,
-      },
-      body: JSON.stringify(body),
-    })
-
-    const data = await response.json()
-    return { status: response.status, data }
-  }
-
-  it.skipIf(!isIntegrationTest)(
-    'returns 201 with booking_id and client_secret',
-    async () => {
-      const { client: sellerClient, user: seller } = await signUpSeller('http-success')
-      const { user, session } = await signUpAndGetSession('http-success')
-      createdUserIds.push(seller.id, user.id)
-
-      const listing = await createListing(sellerClient, seller.id)
-      const slot = await createSlot(sellerClient, listing.id)
-
-      const { status, data } = await makeApiRequest(session, {
-        listing_id: listing.id,
-        slot_id: slot.id,
-      })
-
-      expect(status).toBe(201)
-      expect(data).toHaveProperty('booking_id')
-      expect(data).toHaveProperty('client_secret')
-      expect(typeof data.booking_id).toBe('string')
-      expect(typeof data.client_secret).toBe('string')
-    },
-  )
-
-  it.skipIf(!isIntegrationTest)(
-    'returns 401 for unauthenticated request',
-    async () => {
-      const response = await fetch('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          listing_id: '00000000-0000-0000-0000-000000000001',
-          slot_id: '00000000-0000-0000-0000-000000000002',
-        }),
-      })
-
-      expect(response.status).toBe(401)
-      const data = await response.json()
-      expect(data.error.code).toBe('UNAUTHENTICATED')
-    },
-  )
-
-  it.skipIf(!isIntegrationTest)(
-    'returns 400 for invalid listing_id',
-    async () => {
-      const { session } = await signUpAndGetSession('http-bad-uuid')
-      createdUserIds.push((await signUpAndGetSession('http-bad-uuid-holder')).user.id)
-
-      const { status, data } = await makeApiRequest(session, {
-        listing_id: 'not-a-uuid',
-        slot_id: '00000000-0000-0000-0000-000000000001',
-      })
-
-      expect(status).toBe(400)
-      expect(data.error.code).toBe('VALIDATION_ERROR')
-    },
-  )
-
-  it.skipIf(!isIntegrationTest)(
-    'returns 400 for missing body fields',
-    async () => {
-      const { session } = await signUpAndGetSession('http-missing')
-
-      const { status, data } = await makeApiRequest(session, {})
-
-      expect(status).toBe(400)
-      expect(data.error.code).toBe('VALIDATION_ERROR')
-    },
-  )
 })

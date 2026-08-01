@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
+import { createClient } from '@supabase/supabase-js'
 
 /**
- * Search API Integration Tests
+ * GET /api/listings search API HTTP tests.
  *
  * These tests validate the GET /api/listings endpoint behavior.
  * They call the actual API and verify response shapes, parameter handling,
@@ -10,10 +11,28 @@ import { describe, it, expect } from 'vitest'
  * Test data: relies on existing published listings in the database.
  * If running with an empty database, tests will pass with empty result sets.
  *
- * Run via: TEST_INTEGRATION=true npm test
+ * Requires a running dev server + local Supabase. Runs via `npm run test:api`.
+ * Excluded from the default `npm test`.
  */
 
 const isIntegrationTest = process.env.TEST_INTEGRATION === 'true'
+
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321'
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hj04zWl196z2-SBc0'
+
+// The "Placeholder ratings" assertions below expect a database with zero
+// reviews. Other suites (integration / api) can leave review rows behind, so
+// clear them up front to keep this suite isolated regardless of run order.
+beforeAll(async () => {
+  if (!isIntegrationTest) return
+  const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+  await admin.from('reviews').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+})
 
 interface ListingResult {
   id: string
