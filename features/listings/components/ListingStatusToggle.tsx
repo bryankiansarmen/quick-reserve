@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateListingStatusAction } from '../actions'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 
 interface ListingStatusToggleProps {
   listingId: string
@@ -15,18 +16,12 @@ export default function ListingStatusToggle({
   hasImages,
 }: ListingStatusToggleProps) {
   const [isPending, startTransition] = useTransition()
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleStatusChange = async (newStatus: 'draft' | 'published' | 'archived') => {
     // Clear any previous error
     setErrorMessage(null)
-
-    if (newStatus === 'archived') {
-      const confirmed = window.confirm(
-        'Are you sure you want to archive this listing? It will no longer be visible in public search results.'
-      )
-      if (!confirmed) return
-    }
 
     if (newStatus === 'published' && !hasImages) {
       setErrorMessage('Add at least 1 image before publishing.')
@@ -45,6 +40,11 @@ export default function ListingStatusToggle({
     })
   }
 
+  const handleArchiveConfirmed = () => {
+    setArchiveConfirmOpen(false)
+    handleStatusChange('archived')
+  }
+
   const renderStatusButton = () => {
     switch (currentStatus) {
       case 'draft':
@@ -61,7 +61,7 @@ export default function ListingStatusToggle({
       case 'published':
         return (
           <button
-            onClick={() => handleStatusChange('archived')}
+            onClick={() => setArchiveConfirmOpen(true)}
             disabled={isPending}
             className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 dark:border-slate-700 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/20 transition-colors"
             aria-busy={isPending}
@@ -88,6 +88,19 @@ export default function ListingStatusToggle({
   return (
     <div className="flex flex-col items-end gap-1.5">
       {renderStatusButton()}
+
+      <ConfirmDialog
+        isOpen={archiveConfirmOpen}
+        title="Archive this listing?"
+        message="Are you sure you want to archive this listing? It will no longer be visible in public search results."
+        confirmLabel={isPending ? 'Archiving...' : 'Archive'}
+        cancelLabel="Keep listing"
+        confirmDisabled={isPending}
+        onConfirm={handleArchiveConfirmed}
+        onCancel={() => setArchiveConfirmOpen(false)}
+        isDestructive
+      />
+
       {errorMessage && (
         <span
           role="alert"

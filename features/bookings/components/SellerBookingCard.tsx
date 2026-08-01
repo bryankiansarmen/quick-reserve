@@ -4,6 +4,7 @@ import { formatAvailabilityDate, formatTimeRange } from '@/lib/utils/time'
 import { isAllowedImageSrc } from '@/lib/utils/image'
 import type { SellerBookingListItem } from '../types'
 import { AcceptDeclineActions } from './AcceptDeclineActions'
+import { CancelBookingButton } from './CancelBookingButton'
 
 interface SellerBookingCardProps {
   booking: SellerBookingListItem
@@ -12,7 +13,7 @@ interface SellerBookingCardProps {
 const statusStyles: Record<SellerBookingListItem['status'], string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
   confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  cancelled: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
   completed: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
 }
 
@@ -103,6 +104,7 @@ export function SellerBookingCard({ booking }: SellerBookingCardProps) {
               {formatPrice(booking.amount_cents)}
             </span>
             {canAcceptOrDecline && <AcceptDeclineActions bookingId={booking.id} />}
+            {booking.can_cancel && <CancelBookingButton bookingId={booking.id} />}
           </div>
         </div>
       </div>

@@ -67,6 +67,7 @@ export interface BuyerBookingListItem {
   amount_cents: number
   created_at: string
   has_review: boolean
+  can_cancel: boolean
   listing: {
     id: string
     title: string
@@ -90,6 +91,7 @@ export interface SellerBookingListItem {
   amount_cents: number
   created_at: string
   booking_mode: 'instant' | 'request'
+  can_cancel: boolean
   listing: {
     id: string
     title: string

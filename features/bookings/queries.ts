@@ -207,6 +207,9 @@ export async function getBuyerBookings(
     const listing = Array.isArray(row.listing) ? row.listing[0] : row.listing
     if (!slot || !listing) continue
 
+    const slotInFuture = new Date(slot.start_time) >= now
+    const isActive = row.status !== 'cancelled' && row.status !== 'completed'
+
     const item: BuyerBookingListItem = {
       id: row.id,
       status: row.status,
@@ -217,6 +220,10 @@ export async function getBuyerBookings(
       has_review: Array.isArray(row.reviews)
         ? row.reviews.length > 0
         : Boolean(row.reviews),
+      // Mirrors the cancellation business rule (pending/confirmed, slot not
+      // started) so the card can decide to show the cancel control without
+      // reading the clock during render.
+      can_cancel: slotInFuture && isActive,
       listing: {
         id: listing.id,
         title: listing.title,
@@ -231,9 +238,6 @@ export async function getBuyerBookings(
         end_time: slot.end_time,
       },
     }
-
-    const slotInFuture = new Date(slot.start_time) >= now
-    const isActive = row.status !== 'cancelled' && row.status !== 'completed'
 
     if (slotInFuture && isActive) {
       upcoming.push(item)
@@ -306,6 +310,7 @@ export async function getSellerBookings(
     return { pending: [], other: [] }
   }
 
+  const now = new Date()
   const pending: SellerBookingListItem[] = []
   const other: SellerBookingListItem[] = []
 
@@ -321,6 +326,7 @@ export async function getSellerBookings(
       amount_cents: row.amount_cents,
       created_at: row.created_at,
       booking_mode: listing.booking_mode,
+      can_cancel: new Date(slot.start_time) >= now && row.status !== 'cancelled' && row.status !== 'completed',
       listing: {
         id: listing.id,
         title: listing.title,

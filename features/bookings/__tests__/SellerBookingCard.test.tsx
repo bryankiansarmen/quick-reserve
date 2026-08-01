@@ -10,12 +10,16 @@ vi.mock('next/navigation', () => ({
 function makeBooking(
   overrides: Partial<SellerBookingListItem> = {},
 ): SellerBookingListItem {
+  const status = overrides.status ?? 'pending'
   return {
     id: '550e8400-e29b-41d4-a716-446655440000',
-    status: 'pending',
+    status,
     amount_cents: 8500,
     created_at: '2026-07-20T12:00:00Z',
     booking_mode: 'request',
+    // Default mirrors the data layer: pending/confirmed bookings with a
+    // future slot are cancellable. Tests override it to model started slots.
+    can_cancel: status === 'pending' || status === 'confirmed',
     listing: {
       id: '550e8400-e29b-41d4-a716-446655440001',
       title: 'Sunlit Photography Studio',
@@ -91,5 +95,23 @@ describe('SellerBookingCard Component', () => {
 
     expect(screen.queryByRole('button', { name: 'Accept' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Decline' })).not.toBeInTheDocument()
+  })
+
+  it('shows a "Cancel booking" button for a cancellable confirmed booking', () => {
+    render(<SellerBookingCard booking={makeBooking({ status: 'confirmed' })} />)
+
+    expect(screen.getByRole('button', { name: 'Cancel booking' })).toBeInTheDocument()
+  })
+
+  it('hides the "Cancel booking" button once the slot has started (can_cancel false)', () => {
+    render(<SellerBookingCard booking={makeBooking({ status: 'confirmed', can_cancel: false })} />)
+
+    expect(screen.queryByRole('button', { name: 'Cancel booking' })).not.toBeInTheDocument()
+  })
+
+  it('hides the "Cancel booking" button for a cancelled booking', () => {
+    render(<SellerBookingCard booking={makeBooking({ status: 'cancelled' })} />)
+
+    expect(screen.queryByRole('button', { name: 'Cancel booking' })).not.toBeInTheDocument()
   })
 })

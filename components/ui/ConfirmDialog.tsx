@@ -11,6 +11,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void
   onCancel: () => void
   isDestructive?: boolean
+  confirmDisabled?: boolean
 }
 
 export function ConfirmDialog({
@@ -22,6 +23,7 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
   isDestructive = false,
+  confirmDisabled = false,
 }: ConfirmDialogProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -68,11 +70,12 @@ export function ConfirmDialog({
           <button
             type="button"
             onClick={onConfirm}
+            disabled={confirmDisabled}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               isDestructive
                 ? 'bg-red-600 hover:bg-red-500 text-white'
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white'
-            }`}
+            } ${confirmDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {confirmLabel}
           </button>

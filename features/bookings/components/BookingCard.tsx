@@ -4,6 +4,7 @@ import { formatPrice } from '@/lib/utils/currency'
 import { formatAvailabilityDate, formatTimeRange } from '@/lib/utils/time'
 import { isAllowedImageSrc } from '@/lib/utils/image'
 import { ReviewButton } from '@/features/reviews/components/ReviewButton'
+import { CancelBookingButton } from './CancelBookingButton'
 import type { BuyerBookingListItem } from '../types'
 
 interface BookingCardProps {
@@ -13,7 +14,7 @@ interface BookingCardProps {
 const statusStyles: Record<BuyerBookingListItem['status'], string> = {
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
   confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  cancelled: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
   completed: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
 }
 
@@ -111,6 +112,7 @@ export function BookingCard({ booking }: BookingCardProps) {
             </span>
             <div className="flex flex-wrap items-center gap-2">
               {cta}
+              {booking.can_cancel && <CancelBookingButton bookingId={booking.id} />}
               {status === 'completed' && !booking.has_review && (
                 <ReviewButton bookingId={booking.id} listingTitle={listing.title} />
               )}
